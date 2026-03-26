@@ -31,7 +31,7 @@ void movieSimulation(vector<Movie>& movies) {
     int size = movies.size();
     for(int i = 0; i < 5; i++){
         int idx = rand() % size;
-        double score = ((rand() % 100) - 50) / 10.0;
+        double score = ((rand() % 101) - 50) / 10.0; //-5.0 ~ 5.0
         movies[idx].addRating(score);
     }
     for (const auto& m : movies) {
