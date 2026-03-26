@@ -37,6 +37,7 @@ void movieSimulation(vector<Movie>& movies) {
     for (const auto& m : movies) {
         m.display();
     }
+    cout << "####################" << "\n\n";
 }
 
 void userSimulation(vector<User>& users){
@@ -47,6 +48,7 @@ void userSimulation(vector<User>& users){
     for (const auto& u : users) {
         u.display();
     }
+    cout << "####################" << "\n\n";
 }
 
 void ratingSimulation(vector<Rating>& ratings){
@@ -56,6 +58,7 @@ void ratingSimulation(vector<Rating>& ratings){
     for (const auto& r : ratings) {
         r.display();
     }
+    cout << "####################" << "\n\n";
 }
 
 int main() {
