@@ -11,9 +11,9 @@ using std::vector;
 
 void movieSimulation(vector<Movie>& movies) {
     cout << "#### 영화 정보 출력 ####" << '\n';
-    movies.push_back(Movie(1, "기생충", "드라마", 2019));
-    movies.push_back(Movie(2, "인터스텔라", "SF", 2014));
-    movies.push_back(Movie(3, "범죄도시", "액션", 2017));
+    movies.push_back(Movie("1", "기생충", "드라마", 2019));
+    movies.push_back(Movie("2", "인터스텔라", "SF", 2014));
+    movies.push_back(Movie("3", "범죄도시", "액션", 2017));
     movies[0].addRating(4.8);
     movies[1].addRating(4.9);
 
@@ -53,8 +53,8 @@ void userSimulation(vector<User>& users){
 
 void ratingSimulation(vector<Rating>& ratings){
     cout << "#### 평점 정보 출력 ####" << '\n';
-    ratings.push_back(Rating("gildong123", 1, 4.8));
-    ratings.push_back(Rating("chulsoo456", 2, 4.9));
+    ratings.push_back(Rating("gildong123", "기생충", 4.8));
+    ratings.push_back(Rating("chulsoo456", "인터스텔라", 4.9));
     for (const auto& r : ratings) {
         r.display();
     }

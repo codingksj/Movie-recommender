@@ -1,20 +1,15 @@
-#pragma once
-#include <string>
+#include "Base.h"
 
-using std::string;
-
-class User {
+class User : public Base {
 private:
-    string      userId;      // 사용자 ID
-    string      userName;     // 이름
-    string      userEmail;    // 이메일
+    string      userEmail;
 
 public:
     User();
     User(string userId, const string& userName, const string& userEmail);
 
-    string      getUserId()         const;
-    string      getUserName()       const;
+    string      getUserId()         const { return Base::id; }
+    string      getUserName()       const { return Base::name; }
     string      getUserEmail()      const;
-    void        display()       const;
+    void        display()           const override;
 };

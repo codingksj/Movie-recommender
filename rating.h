@@ -1,20 +1,15 @@
-#pragma once
-#include <string>
+#include "Base.h"
 
-using std::string;
-
-class Rating {
+class Rating : public Base {
 private:
-    string  userId;       // 평가한 사용자
-    int     movieId;      // 평가 대상 영화
-    double  userRating;   // 0.0 ~ 5.0
+    double  userRating;
 
 public:
     Rating();
-    Rating(string userId, int movieId, double userRating);
+    Rating(string userId, string movieTitle, double userRating);
 
-    string     getUserId()          const;
-    int        getMovieId()         const;
+    string     getUserId()          const { return Base::id; }
+    string     getMovieTitle()      const { return Base::name; }
     double     getUserRating()      const;
-    void       display()            const;
+    void       display()            const override;
 };

@@ -1,28 +1,25 @@
-#pragma once
-#include <string>
+#include "Base.h"
 
-using std::string;
-
-class Movie {
+class Movie : public Base {
 private:
-    int         id;
-    string      title;
     string      genre;
     int         releaseYear;
-    double      totalRating;    // averageRating 제거
-    int         ratingCount;    // 추가
+    double      totalRating;
+    int         ratingCount;
 
 public:
-    Movie();                    // 기본 생성자 추가
-    Movie(int id, const string& title,
+    Movie();
+    Movie(string id, const string& title,
           const string& genre, int year);
 
-    int         getId()              const;
-    string      getTitle()           const;
+    // getId()와 getTitle()은 Base에서 상속받은 getId(), getName()으로 대체 가능하지만,
+    // 기존 하위 호환성을 위해 유지하거나 Base 메서드를 호출하도록 수정
+    string      getId()              const { return Base::id; }
+    string      getTitle()           const { return Base::name; }
     string      getGenre()           const;
-    int         getReleaseYear()     const;  // getYear → getReleaseYear
-    double      getAverageRating()   const;  // getRating → getAverageRating
-    int         getRatingCount()     const;  // 추가
-    void        addRating(double r); // 추가
-    void        display()            const;
+    int         getReleaseYear()     const;
+    double      getAverageRating()   const;
+    int         getRatingCount()     const;
+    void        addRating(double r);
+    void        display()            const override;
 };
