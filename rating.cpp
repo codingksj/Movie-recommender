@@ -4,11 +4,10 @@
 using std::string;
 using std::cout;
 
-Rating::Rating() : Base("", ""), userRating(0.0) {}
-Rating::Rating(string userId, string movieTitle, double userRating)
-    : Base("", movieTitle) {
+Rating::Rating(string userName, string movieTitle, double userRating)
+    : Base(movieTitle) {
     
-    this->id = Base::validateString(userId, "아이디");
+    this->userName = Base::validateString(userName, "유저 이름");
 
     if (userRating < 0.0 || userRating > 5.0) {
         cout << "평점 범위가 잘못되었습니다!" << '\n';
@@ -19,8 +18,12 @@ Rating::Rating(string userId, string movieTitle, double userRating)
     }
 }
 
+string  Rating::getUserName()     const { return userName; }
+string  Rating::getMovieTitle()   const { return Base::name; }
+
 double  Rating::getUserRating()   const { return userRating; }
 
-void Rating::display() const {
-    cout << "[ 유저 ID ] " << Base::id << " [ 영화 제목 ] " << Base::name << " [ 평점 ] " << userRating << '\n';
+std::ostream& operator<<(std::ostream& os, const Rating& r) {
+    os << "[ 유저 이름 ] " << r.userName << " [ 영화 제목 ] " << r.name << " [ 평점 ] " << r.userRating;
+    return os;
 }

@@ -6,12 +6,12 @@ using std::cout;
 
 // 기본 생성자
 Movie::Movie()
-    : Base("", ""), genre(""), releaseYear(0), 
+    : Base(""), genre(""), releaseYear(0), 
     totalRating(0.0), ratingCount(0) {}
 
-// 4인자 생성자
-Movie::Movie(string id, const string& title, const string& genre, int year)
-    : Base(id, title), totalRating(0.0), ratingCount(0) {
+// 3인자 생성자
+Movie::Movie(const string& title, const string& genre, int year)
+    : Base(title), totalRating(0.0), ratingCount(0) {
     
     this->genre = Base::validateString(genre, "장르");
 
@@ -23,6 +23,7 @@ Movie::Movie(string id, const string& title, const string& genre, int year)
     }
 }
 
+string      Movie::getTitle()        const { return Base::name; }
 string      Movie::getGenre()        const { return genre; }
 int         Movie::getReleaseYear()  const { return releaseYear; }
 int         Movie::getRatingCount()  const { return ratingCount; }
@@ -41,8 +42,9 @@ void Movie::addRating(double r) {
     ratingCount++;
 }
 
-void Movie::display() const {           
-    cout << Base::id << ". " << Base::name << " (" << releaseYear << ")"
-              << "  평점: " << getAverageRating()
-              << " (" << ratingCount << "건)" << '\n';
+std::ostream& operator<<(std::ostream& os, const Movie& m) {
+    os << m.name << " (" << m.releaseYear << ")"
+       << "  평점: " << m.getAverageRating()
+       << " (" << m.ratingCount << "건)";
+    return os;
 }

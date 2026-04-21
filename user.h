@@ -5,11 +5,9 @@ private:
     string      userEmail;
 
 public:
-    User();
-    User(string userId, const string& userName, const string& userEmail);
+    User(const string& userName, const string& userEmail);
 
-    string      getUserId()         const { return Base::id; }
-    string      getUserName()       const { return Base::name; }
+    string      getUserName()       const;
     string      getUserEmail()      const;
-    void        display()           const override;
+    friend std::ostream& operator<<(std::ostream& os, const User& u);
 };
