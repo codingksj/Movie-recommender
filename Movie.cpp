@@ -28,6 +28,12 @@ bool Movie::addRating(double r) {
     ratingCount++;
     return true;
 }
+bool Movie::operator<(const Movie& other) const {
+    return getAverageRating() > other.getAverageRating();
+}
+bool Movie::operator==(const Movie& other) const {
+    return name == other.name;
+}
 std::ostream& operator<<(std::ostream& os, const Movie& m) {
     os << m.name << " (" << m.releaseYear << ")" << "  평점: " << m.getAverageRating() << " (" << m.ratingCount << "건)";
     return os;

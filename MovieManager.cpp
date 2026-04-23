@@ -27,10 +27,12 @@ void MovieManager::searchByTitle() {
     cin.ignore();
     std::getline(cin, title);
     bool found = false;
+    Movie target(title, "temp", 2000);
     for (const auto& m : movies) {
-        if (m.getTitle() == title) {
+        if (m == target) {
             cout << m << '\n';
             found = true;
+            break;
         }
     }
     if (!found) cout << "해당 제목의 영화를 찾을 수 없습니다.\n";
@@ -49,15 +51,14 @@ void MovieManager::printSortedByRating() {
         return;
     }
     vector<Movie> sortedMovies = movies;
-    std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
-        return a.getAverageRating() > b.getAverageRating();
-    });
+    std::sort(sortedMovies.begin(), sortedMovies.end());
     cout << "\n#### 평점순 영화 목록 ####\n";
     for (const auto& m : sortedMovies) cout << m << '\n';
 }
 Movie* MovieManager::findMovieByTitle(const string& title) {
+    Movie target(title, "temp", 2000);
     for (auto& m : movies) {
-        if (m.getTitle() == title) return &m;
+        if (m == target) return &m;
     }
     return nullptr;
 }
