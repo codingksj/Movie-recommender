@@ -4,6 +4,7 @@
 using std::cout;
 using std::cin;
 using std::string;
+using std::vector;
 
 void RatingManager::addRating(MovieManager& movieManager) {
     string userName, movieTitle;
@@ -41,5 +42,7 @@ void RatingManager::printRatingsByMovie() {
             found = true;
         }
     }
-    if (!found) cout << "등록된 평점이 없습니다.\n";
+    if (!found) {
+        cout << "등록된 평점이 없습니다.\n";
+    }
 }

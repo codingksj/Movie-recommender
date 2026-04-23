@@ -3,7 +3,6 @@
 #include "RatingManager.h"
 #include <iostream>
 #include <iomanip>
-#include <limits>
 
 using std::cout;
 using std::cin;
@@ -35,9 +34,11 @@ int main() {
     while (true) {
         showMenu();
         if (!(cin >> choice)) {
-            if (cin.eof()) break;
+            if (cin.eof()) {
+                break;
+            }
             cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cin.ignore(256, '\n');
             cout << "올바른 숫자를 입력해주세요.\n";
             continue;
         }
@@ -48,15 +49,15 @@ int main() {
         }
 
         switch (choice) {
-            case 1: movieManager.addMovie(); break;
-            case 2: movieManager.searchByTitle(); break;
-            case 3: movieManager.printAllMovies(); break;
-            case 4: movieManager.printSortedByRating(); break;
-            case 5: userManager.addUser(); break;
-            case 6: userManager.printAllUsers(); break;
-            case 7: ratingManager.addRating(movieManager); break;
-            case 8: ratingManager.printRatingsByMovie(); break;
-            default: cout << "잘못된 선택입니다.\n"; break;
+            case 1: { movieManager.addMovie(); break; }
+            case 2: { movieManager.searchByTitle(); break; }
+            case 3: { movieManager.printAllMovies(); break; }
+            case 4: { movieManager.printSortedByRating(); break; }
+            case 5: { userManager.addUser(); break; }
+            case 6: { userManager.printAllUsers(); break; }
+            case 7: { ratingManager.addRating(movieManager); break; }
+            case 8: { ratingManager.printRatingsByMovie(); break; }
+            default: { cout << "잘못된 선택입니다.\n"; break; }
         }
     }
 

@@ -1,10 +1,10 @@
 #include "MovieManager.h"
 #include <iostream>
-#include <limits>
 
 using std::cout;
 using std::cin;
 using std::string;
+using std::vector;
 
 void MovieManager::addMovie() {
     string title, genre;
@@ -35,7 +35,9 @@ void MovieManager::searchByTitle() {
             found = true;
         }
     }
-    if (!found) cout << "해당 제목의 영화를 찾을 수 없습니다.\n";
+    if (!found) {
+        cout << "해당 제목의 영화를 찾을 수 없습니다.\n";
+    }
 }
 
 void MovieManager::printAllMovies() {
@@ -54,7 +56,7 @@ void MovieManager::printSortedByRating() {
         cout << "등록된 영화가 없습니다.\n";
         return;
     }
-    std::vector<Movie> sortedMovies = movies;
+    vector<Movie> sortedMovies = movies;
     std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
         return a.getAverageRating() > b.getAverageRating();
     });
