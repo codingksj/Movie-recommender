@@ -9,7 +9,7 @@ private:
 
 public:
     Movie();
-    Movie(const string& title, const string& genre, int year);
+    Movie(const string& title, int year = 2026, const string& genre = "unknown");
 
     string      getTitle()           const;
     string      getGenre()           const;
@@ -18,7 +18,7 @@ public:
     int         getRatingCount()     const;
     bool        addRating(double r);
 
-    bool operator<(const Movie& other) const;
+    bool operator>(const Movie& other) const;
     bool operator==(const Movie& other) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Movie& m);
