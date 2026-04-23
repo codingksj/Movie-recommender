@@ -17,7 +17,7 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
     }
 
     if (!userManager.findUserByName(userName)) {
-        cout << "등록되지 않은 사용자입니다.\n";
+        cout << "[" << userName << "]은(는) 등록되지 않은 사용자입니다.\n";
         return;
     }
 
@@ -28,7 +28,7 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
 
     Movie* movie = movieManager.findMovieByTitle(movieTitle);
     if (!movie) {
-        cout << "해당 제목의 영화를 찾을 수 없습니다.\n";
+        cout << "[" << movieTitle << "] 제목의 영화를 찾을 수 없습니다.\n";
         return;
     }
 
@@ -44,7 +44,7 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
     }
 
     ratings.push_back(Rating(userName, movieTitle, score));
-    cout << "평점이 등록되었습니다.\n";
+    cout << "평점이 등록되었습니다. [사용자: " << userName << ", 영화: " << movieTitle << ", 평점: " << score << "]\n";
 }
 
 void RatingManager::printRatingsByMovie() {

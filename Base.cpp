@@ -13,7 +13,7 @@ string Base::getName() const { return name; }
 
 string Base::validateString(const string& val, const string& fieldName) {
     if (val.length() > 50) {
-        cout << fieldName << "이(가) 너무 깁니다!" << '\n';
+        cout << fieldName << "이(가) 너무 깁니다! (입력: " << val.length() << "자)" << '\n';
         return val.substr(0, 50);
     }
     return val;

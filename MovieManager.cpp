@@ -28,7 +28,7 @@ void MovieManager::addMovie() {
     }
 
     movies.push_back(Movie(title, year, genre));
-    cout << "영화가 추가되었습니다.\n";
+    cout << "영화가 추가되었습니다. [제목: " << title << ", 연도: " << year << ", 장르: " << genre << "]\n";
 }
 
 void MovieManager::searchByTitle() {
@@ -49,7 +49,7 @@ void MovieManager::searchByTitle() {
     }
 
     if (!found) {
-        cout << "해당 제목의 영화를 찾을 수 없습니다.\n";
+        cout << "[" << title << "] 제목의 영화를 찾을 수 없습니다.\n";
     }
 }
 

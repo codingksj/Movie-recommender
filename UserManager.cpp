@@ -15,18 +15,21 @@ void UserManager::addUser() {
         return;
     }
 
-    if (findUserByName(name)) {
-        cout << "이미 존재하는 사용자 이름입니다.\n";
-        return;
-    }
-
     cout << "사용자 이메일: ";
     if (!std::getline(cin, email) || email.empty()) {
         return;
     }
 
-    users.push_back(User(name, email));
-    cout << "사용자가 추가되었습니다.\n";
+    User newUser(name, email);
+    for (const auto& u : users) {
+        if (u == newUser) {
+            cout << "[" << name << ", " << email << "]은(는) 이미 존재하는 사용자입니다.\n";
+            return;
+        }
+    }
+
+    users.push_back(newUser);
+    cout << "사용자가 추가되었습니다. [이름: " << name << ", 이메일: " << email << "]\n";
 }
 
 void UserManager::printAllUsers() {
