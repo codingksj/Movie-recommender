@@ -7,6 +7,7 @@ private:
     std::vector<User> users;
 
 public:
-    void addUser();
-    void printAllUsers();
+    void  addUser();
+    void  printAllUsers();
+    User* findUserByName(const std::string& name);
 };

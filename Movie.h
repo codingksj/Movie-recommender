@@ -16,6 +16,6 @@ public:
     int         getReleaseYear()     const;
     double      getAverageRating()   const;
     int         getRatingCount()     const;
-    void        addRating(double r);
+    bool        addRating(double r);
     friend std::ostream& operator<<(std::ostream& os, const Movie& m);
 };

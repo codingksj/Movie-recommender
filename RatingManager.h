@@ -3,12 +3,13 @@
 #include <string>
 #include "rating.h"
 #include "MovieManager.h"
+#include "UserManager.h"
 
 class RatingManager {
 private:
     std::vector<Rating> ratings;
 
 public:
-    void addRating(MovieManager& movieManager);
+    void addRating(MovieManager& movieManager, UserManager& userManager);
     void printRatingsByMovie();
 };

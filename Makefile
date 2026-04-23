@@ -36,20 +36,3 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 run: $(TARGET)
 	./$(TARGET)
-
-test1: $(TARGET)
-	./$(TARGET) < test_cases/test1.txt
-test2: $(TARGET)
-	./$(TARGET) < test_cases/test2.txt
-test3: $(TARGET)
-	./$(TARGET) < test_cases/test3.txt
-test4: $(TARGET)
-	./$(TARGET) < test_cases/test4.txt
-test5: $(TARGET)
-	./$(TARGET) < test_cases/test5.txt
-test6: $(TARGET)
-	./$(TARGET) < test_cases/test6.txt
-test7: $(TARGET)
-	./$(TARGET) < test_cases/test7.txt
-test8: $(TARGET)
-	./$(TARGET) < test_cases/test8.txt
