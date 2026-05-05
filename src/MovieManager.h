@@ -15,4 +15,7 @@ public:
     void printAllMovies();
     void printSortedByRating();
     Movie* findMovieByTitle(const std::string& title);
+
+    void loadMovies(const std::string& filename);
+    void saveMovies(const std::string& filename);
 };

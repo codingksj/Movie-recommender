@@ -31,6 +31,11 @@ int main() {
 
     cout << std::fixed << std::setprecision(1);
 
+    // 데이터 로드
+    movieManager.loadMovies("data/movies.csv");
+    userManager.loadUsers("data/users.csv");
+    ratingManager.loadRatings("data/ratings.csv");
+
     while (true) {
         showMenu();
 
@@ -45,7 +50,10 @@ int main() {
         }
 
         if (choice == 0) {
-            cout << "프로그램을 종료합니다.\n";
+            cout << "데이터를 저장하고 프로그램을 종료합니다.\n";
+            movieManager.saveMovies("data/movies.csv");
+            userManager.saveUsers("data/users.csv");
+            ratingManager.saveRatings("data/ratings.csv");
             break;
         }
 

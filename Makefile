@@ -1,35 +1,25 @@
 # Makefile — Movie 클래스 빌드
 CXX      = g++
-CXXFLAGS = -std=c++17 -Wall -g
+CXXFLAGS = -std=c++17 -Wall -g -Isrc
 TARGET   = movie-app
-OBJS     = main.o Movie.o user.o rating.o Base.o MovieManager.o UserManager.o RatingManager.o
+SRC_DIR  = src
+OBJS     = main.o Movie.o user.o rating.o Base.o MovieManager.o UserManager.o RatingManager.o SimilarityCalculator.o
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-main.o: main.cpp MovieManager.h UserManager.h RatingManager.h
-	$(CXX) $(CXXFLAGS) -c $<
+%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-Movie.o: Movie.cpp Movie.h Base.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-user.o: user.cpp user.h Base.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-rating.o: rating.cpp rating.h Base.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-Base.o: Base.cpp Base.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-MovieManager.o: MovieManager.cpp MovieManager.h Movie.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-UserManager.o: UserManager.cpp UserManager.h user.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-RatingManager.o: RatingManager.cpp RatingManager.h rating.h MovieManager.h
-	$(CXX) $(CXXFLAGS) -c $<
+main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/MovieManager.h $(SRC_DIR)/UserManager.h $(SRC_DIR)/RatingManager.h
+Movie.o: $(SRC_DIR)/Movie.cpp $(SRC_DIR)/Movie.h $(SRC_DIR)/Base.h
+user.o: $(SRC_DIR)/user.cpp $(SRC_DIR)/user.h $(SRC_DIR)/Base.h
+rating.o: $(SRC_DIR)/rating.cpp $(SRC_DIR)/rating.h $(SRC_DIR)/Base.h
+Base.o: $(SRC_DIR)/Base.cpp $(SRC_DIR)/Base.h
+MovieManager.o: $(SRC_DIR)/MovieManager.cpp $(SRC_DIR)/MovieManager.h $(SRC_DIR)/Movie.h
+UserManager.o: $(SRC_DIR)/UserManager.cpp $(SRC_DIR)/UserManager.h $(SRC_DIR)/user.h
+RatingManager.o: $(SRC_DIR)/RatingManager.cpp $(SRC_DIR)/RatingManager.h $(SRC_DIR)/rating.h $(SRC_DIR)/MovieManager.h
+SimilarityCalculator.o: $(SRC_DIR)/SimilarityCalculator.cpp $(SRC_DIR)/SimilarityCalculator.h $(SRC_DIR)/rating.h
 
 .PHONY: clean run
 clean:

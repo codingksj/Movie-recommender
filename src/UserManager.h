@@ -10,4 +10,7 @@ public:
     void  addUser();
     void  printAllUsers();
     User* findUserByName(const std::string& name);
+
+    void loadUsers(const std::string& filename);
+    void saveUsers(const std::string& filename);
 };

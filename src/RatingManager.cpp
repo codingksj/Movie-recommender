@@ -1,5 +1,7 @@
 #include "RatingManager.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 using std::cout;
 using std::cin;
@@ -66,4 +68,48 @@ void RatingManager::printRatingsByMovie() {
     if (!found) {
         cout << "등록된 평점이 없습니다.\n";
     }
+}
+
+void RatingManager::loadRatings(const string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "파일을 열 수 없습니다: " << filename << "\n";
+        return;
+    }
+
+    string line;
+    std::getline(file, line); // 헤더 스킵 (userName,movieTitle,userRating)
+    
+    int count = 0;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+        std::stringstream ss(line);
+        string name, title, ratingStr;
+
+        std::getline(ss, name, ',');
+        std::getline(ss, title, ',');
+        std::getline(ss, ratingStr, ',');
+
+        if (!name.empty()) {
+            ratings.push_back(Rating(name, title, std::stod(ratingStr)));
+            count++;
+        }
+    }
+    file.close();
+    cout << "평점 데이터 로드 완료 (" << count << "건)\n";
+}
+
+void RatingManager::saveRatings(const string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        cout << "파일을 저장할 수 없습니다: " << filename << "\n";
+        return;
+    }
+
+    file << "userName,movieTitle,userRating\n";
+    for (const auto& r : ratings) {
+        file << r.getUserName() << "," << r.getMovieTitle() << "," << r.getUserRating() << "\n";
+    }
+    file.close();
+    cout << "평점 데이터 저장 완료\n";
 }

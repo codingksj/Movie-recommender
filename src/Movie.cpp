@@ -17,6 +17,9 @@ Movie::Movie(const string& title, int year, const string& genre)
     }
 }
 
+Movie::Movie(const string& title, int year, const string& genre, double totalRating, int ratingCount)
+    : Base(title), genre(genre), releaseYear(year), totalRating(totalRating), ratingCount(ratingCount) {}
+
 string      Movie::getTitle()        const { return Base::name; }
 string      Movie::getGenre()        const { return genre; }
 int         Movie::getReleaseYear()  const { return releaseYear; }

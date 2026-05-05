@@ -1,5 +1,7 @@
 #include "UserManager.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 using std::cout;
 using std::cin;
@@ -52,4 +54,47 @@ User* UserManager::findUserByName(const string& name) {
     }
 
     return nullptr;
+}
+
+void UserManager::loadUsers(const string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "파일을 열 수 없습니다: " << filename << "\n";
+        return;
+    }
+
+    string line;
+    std::getline(file, line); // 헤더 스킵 (userName,userEmail)
+    
+    int count = 0;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+        std::stringstream ss(line);
+        string name, email;
+
+        std::getline(ss, name, ',');
+        std::getline(ss, email, ',');
+
+        if (!name.empty()) {
+            users.push_back(User(name, email));
+            count++;
+        }
+    }
+    file.close();
+    cout << "사용자 데이터 로드 완료 (" << count << "건)\n";
+}
+
+void UserManager::saveUsers(const string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        cout << "파일을 저장할 수 없습니다: " << filename << "\n";
+        return;
+    }
+
+    file << "userName,userEmail\n";
+    for (const auto& u : users) {
+        file << u.getUserName() << "," << u.getUserEmail() << "\n";
+    }
+    file.close();
+    cout << "사용자 데이터 저장 완료\n";
 }

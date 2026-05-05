@@ -12,4 +12,7 @@ private:
 public:
     void addRating(MovieManager& movieManager, UserManager& userManager);
     void printRatingsByMovie();
+
+    void loadRatings(const std::string& filename);
+    void saveRatings(const std::string& filename);
 };

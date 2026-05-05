@@ -10,6 +10,7 @@ private:
 public:
     Movie();
     Movie(const string& title, int year = 2026, const string& genre = "unknown");
+    Movie(const string& title, int year, const string& genre, double totalRating, int ratingCount);
 
     string      getTitle()           const;
     string      getGenre()           const;
