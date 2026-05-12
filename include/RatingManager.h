@@ -12,6 +12,7 @@ private:
 public:
     void addRating(MovieManager& movieManager, UserManager& userManager);
     void printRatingsByMovie();
+    const std::vector<Rating>& getRatings() const { return ratings; }
 
     void loadRatings(const std::string& filename);
     void saveRatings(const std::string& filename);

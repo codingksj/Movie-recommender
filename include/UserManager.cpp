@@ -46,8 +46,8 @@ void UserManager::printAllUsers() {
     }
 }
 
-User* UserManager::findUserByName(const string& name) {
-    for (auto& u : users) {
+const User* UserManager::findUserByName(const string& name) const {
+    for (const auto& u : users) {
         if (u.getUserName() == name) {
             return &u;
         }

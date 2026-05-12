@@ -9,7 +9,8 @@ private:
 public:
     void  addUser();
     void  printAllUsers();
-    User* findUserByName(const std::string& name);
+    const User* findUserByName(const std::string& name) const;
+    const std::vector<User>& getUsers() const { return users; }
 
     void loadUsers(const std::string& filename);
     void saveUsers(const std::string& filename);

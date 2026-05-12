@@ -1,6 +1,7 @@
 #include "MovieManager.h"
 #include "UserManager.h"
 #include "RatingManager.h"
+#include "recommend.h"
 #include <iostream>
 #include <iomanip>
 
@@ -19,6 +20,9 @@ void showMenu() {
     cout << "[ 평점 ]\n";
     cout << "7. 평점입력\n";
     cout << "8. 영화별평점보기\n";
+    cout << "[ 추천 ]\n";
+    cout << "9. 유사사용자찾기\n";
+    cout << "10. 영화추천받기\n";
     cout << "0. 종료\n";
     cout << "선택> ";
 }
@@ -27,6 +31,7 @@ int main() {
     MovieManager movieManager;
     UserManager userManager;
     RatingManager ratingManager;
+    Recommend recommender(movieManager, ratingManager, userManager);
     int choice;
 
     cout << std::fixed << std::setprecision(1);
@@ -66,6 +71,8 @@ int main() {
             case 6: { userManager.printAllUsers(); break; }
             case 7: { ratingManager.addRating(movieManager, userManager); break; }
             case 8: { ratingManager.printRatingsByMovie(); break; }
+            case 9: { recommender.findSimilarUsers(); break; }
+            case 10: { recommender.recommend(); break; }
             default: { cout << "잘못된 선택입니다.\n"; break; }
         }
     }

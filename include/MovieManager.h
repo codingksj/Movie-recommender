@@ -15,6 +15,7 @@ public:
     void printAllMovies();
     void printSortedByRating();
     Movie* findMovieByTitle(const std::string& title);
+    const std::vector<Movie>& getMovies() const { return movies; }
 
     void loadMovies(const std::string& filename);
     void saveMovies(const std::string& filename);
