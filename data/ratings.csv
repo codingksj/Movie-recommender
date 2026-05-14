@@ -1,5 +1,21 @@
 userName,movieTitle,userRating
-Alice,Inception,5
-Alice,Parasite,4
-Bob,Inception,4.5
-Charlie,The Matrix,5
+Alice,Inception,10.0
+Alice,Parasite,8.5
+Alice,Interstellar,9.2
+Alice,The Matrix,8.0
+Bob,Inception,9.0
+Bob,Interstellar,10.0
+Bob,The Dark Knight,9.5
+Bob,Mad Max: Fury Road,8.2
+Charlie,The Matrix,10.0
+Charlie,Inception,6.5
+Charlie,The Godfather,9.8
+Charlie,Joker,8.7
+David,Avengers: Endgame,9.5
+David,John Wick,8.8
+David,Inception,7.2
+David,Toy Story,9.0
+Eve,Your Name,9.6
+Eve,About Time,8.4
+Eve,La La Land,7.8
+Eve,Spirited Away,9.2

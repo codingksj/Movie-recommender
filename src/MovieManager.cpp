@@ -94,15 +94,15 @@ Movie* MovieManager::findMovieByTitle(const string& title) {
     return nullptr;
 }
 
-void MovieManager::loadMovies(const string& filename) {
-    std::ifstream file(filename);
+void MovieManager::loadFromFile() {
+    std::ifstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 열 수 없습니다: " << filename << "\n";
+        cout << "파일을 열 수 없습니다: " << filePath << "\n";
         return;
     }
 
     string line;
-    std::getline(file, line); // 헤더 스킵 (title,genre,year,totalRating,ratingCount)
+    std::getline(file, line);
     
     int count = 0;
     while (std::getline(file, line)) {
@@ -125,10 +125,10 @@ void MovieManager::loadMovies(const string& filename) {
     cout << "영화 데이터 로드 완료 (" << count << "건)\n";
 }
 
-void MovieManager::saveMovies(const string& filename) {
-    std::ofstream file(filename);
+void MovieManager::saveToFile() {
+    std::ofstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 저장할 수 없습니다: " << filename << "\n";
+        cout << "파일을 저장할 수 없습니다: " << filePath << "\n";
         return;
     }
 
@@ -137,7 +137,7 @@ void MovieManager::saveMovies(const string& filename) {
         file << m.getTitle() << "," 
              << m.getGenre() << "," 
              << m.getReleaseYear() << "," 
-             << (m.getAverageRating() * m.getRatingCount()) << "," // totalRating 복원
+             << (m.getAverageRating() * m.getRatingCount()) << ","
              << m.getRatingCount() << "\n";
     }
     file.close();

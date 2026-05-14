@@ -1,7 +1,7 @@
 #include "MovieManager.h"
 #include "UserManager.h"
 #include "RatingManager.h"
-#include "recommend.h"
+#include "Recommender.h"
 #include <iostream>
 #include <iomanip>
 
@@ -31,15 +31,19 @@ int main() {
     MovieManager movieManager;
     UserManager userManager;
     RatingManager ratingManager;
-    Recommend recommender(movieManager, ratingManager, userManager);
+    Recommender recommender(movieManager, ratingManager, userManager);
     int choice;
 
     cout << std::fixed << std::setprecision(1);
 
-    // 데이터 로드
-    movieManager.loadMovies("data/movies.csv");
-    userManager.loadUsers("data/users.csv");
-    ratingManager.loadRatings("data/ratings.csv");
+    // 파일 경로 설정 및 데이터 로드
+    movieManager.setFilePath("data/movies.csv");
+    userManager.setFilePath("data/users.csv");
+    ratingManager.setFilePath("data/ratings.csv");
+
+    movieManager.loadFromFile();
+    userManager.loadFromFile();
+    ratingManager.loadFromFile();
 
     while (true) {
         showMenu();
@@ -56,9 +60,9 @@ int main() {
 
         if (choice == 0) {
             cout << "데이터를 저장하고 프로그램을 종료합니다.\n";
-            movieManager.saveMovies("data/movies.csv");
-            userManager.saveUsers("data/users.csv");
-            ratingManager.saveRatings("data/ratings.csv");
+            movieManager.saveToFile();
+            userManager.saveToFile();
+            ratingManager.saveToFile();
             break;
         }
 
@@ -72,7 +76,7 @@ int main() {
             case 7: { ratingManager.addRating(movieManager, userManager); break; }
             case 8: { ratingManager.printRatingsByMovie(); break; }
             case 9: { recommender.findSimilarUsers(); break; }
-            case 10: { recommender.recommend(); break; }
+            case 10: { recommender.recommendMenu(); break; }
             default: { cout << "잘못된 선택입니다.\n"; break; }
         }
     }

@@ -7,7 +7,7 @@ using std::cout;
 Rating::Rating(string userName, string movieTitle, double userRating)
     : Base(movieTitle) {
     this->userName = Base::validateString(userName, "유저 이름");
-    if (userRating < 0.0 || userRating > 5.0) {
+    if (userRating < 0.0 || userRating > 10.0) {
         this->userRating = 0.0;
     } else {
         this->userRating = userRating;

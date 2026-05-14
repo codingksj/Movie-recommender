@@ -27,8 +27,8 @@ int         Movie::getRatingCount()  const { return ratingCount; }
 double      Movie::getAverageRating() const { return ratingCount > 0 ? totalRating / ratingCount : 0.0; }
 
 bool Movie::addRating(double r) {
-    if (r < 0.0 || r > 5.0) {
-        cout << r << "은(는) 평점 범위(0.0 ~ 5.0)를 벗어납니다." << '\n';
+    if (r < 0.0 || r > 10.0) {
+        cout << r << "은(는) 평점 범위(0.0 ~ 10.0)를 벗어납니다." << '\n';
         return false;
     }
     cout << '[' << Base::name << "] 에 평점 추가 : " << r << "점\n";

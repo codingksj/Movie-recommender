@@ -34,7 +34,7 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
         return;
     }
 
-    cout << "평점 (0.0 ~ 5.0): ";
+    cout << "평점 (0.0 ~ 10.0): ";
     if (!(cin >> score)) {
         cin.clear();
         cin.ignore(1000, '\n');
@@ -70,15 +70,15 @@ void RatingManager::printRatingsByMovie() {
     }
 }
 
-void RatingManager::loadRatings(const string& filename) {
-    std::ifstream file(filename);
+void RatingManager::loadFromFile() {
+    std::ifstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 열 수 없습니다: " << filename << "\n";
+        cout << "파일을 열 수 없습니다: " << filePath << "\n";
         return;
     }
 
     string line;
-    std::getline(file, line); // 헤더 스킵 (userName,movieTitle,userRating)
+    std::getline(file, line);
     
     int count = 0;
     while (std::getline(file, line)) {
@@ -99,10 +99,10 @@ void RatingManager::loadRatings(const string& filename) {
     cout << "평점 데이터 로드 완료 (" << count << "건)\n";
 }
 
-void RatingManager::saveRatings(const string& filename) {
-    std::ofstream file(filename);
+void RatingManager::saveToFile() {
+    std::ofstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 저장할 수 없습니다: " << filename << "\n";
+        cout << "파일을 저장할 수 없습니다: " << filePath << "\n";
         return;
     }
 

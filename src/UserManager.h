@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 #include "user.h"
+#include "BaseManager.h"
 
-class UserManager {
+class UserManager : public BaseManager {
 private:
     std::vector<User> users;
 
@@ -12,6 +13,7 @@ public:
     const User* findUserByName(const std::string& name) const;
     const std::vector<User>& getUsers() const { return users; }
 
-    void loadUsers(const std::string& filename);
-    void saveUsers(const std::string& filename);
+    void loadFromFile() override;
+    void saveToFile() override;
+    int size() override { return users.size(); }
 };

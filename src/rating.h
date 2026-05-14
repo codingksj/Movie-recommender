@@ -1,3 +1,4 @@
+#pragma once
 #include "Base.h"
 
 class Rating : public Base {

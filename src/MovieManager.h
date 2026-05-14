@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <functional>
 #include "Movie.h"
+#include "BaseManager.h"
 
-class MovieManager {
+class MovieManager : public BaseManager {
 private:
     std::vector<Movie> movies;
 
@@ -17,6 +18,7 @@ public:
     Movie* findMovieByTitle(const std::string& title);
     const std::vector<Movie>& getMovies() const { return movies; }
 
-    void loadMovies(const std::string& filename);
-    void saveMovies(const std::string& filename);
+    void loadFromFile() override;
+    void saveToFile() override;
+    int size() override { return movies.size(); }
 };

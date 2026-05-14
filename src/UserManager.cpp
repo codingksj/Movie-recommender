@@ -56,15 +56,15 @@ const User* UserManager::findUserByName(const string& name) const {
     return nullptr;
 }
 
-void UserManager::loadUsers(const string& filename) {
-    std::ifstream file(filename);
+void UserManager::loadFromFile() {
+    std::ifstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 열 수 없습니다: " << filename << "\n";
+        cout << "파일을 열 수 없습니다: " << filePath << "\n";
         return;
     }
 
     string line;
-    std::getline(file, line); // 헤더 스킵 (userName,userEmail)
+    std::getline(file, line);
     
     int count = 0;
     while (std::getline(file, line)) {
@@ -84,10 +84,10 @@ void UserManager::loadUsers(const string& filename) {
     cout << "사용자 데이터 로드 완료 (" << count << "건)\n";
 }
 
-void UserManager::saveUsers(const string& filename) {
-    std::ofstream file(filename);
+void UserManager::saveToFile() {
+    std::ofstream file(filePath);
     if (!file.is_open()) {
-        cout << "파일을 저장할 수 없습니다: " << filename << "\n";
+        cout << "파일을 저장할 수 없습니다: " << filePath << "\n";
         return;
     }
 
