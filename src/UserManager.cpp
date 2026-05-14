@@ -68,7 +68,9 @@ void UserManager::loadFromFile() {
     
     int count = 0;
     while (std::getline(file, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) {
+            continue;
+        }
         std::stringstream ss(line);
         string name, email;
 

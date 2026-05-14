@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 using std::cout;
 using std::cin;
@@ -61,24 +62,92 @@ void MovieManager::printAllMovies() {
         return;
     }
 
-    cout << "\n#### 전체 영화 목록 ####\n";
-    for (const auto& m : movies) {
-        cout << m << '\n';
-    }
-}
-
-void MovieManager::printSortedByRating() {
-    if (movies.empty()) {
-        cout << "등록된 영화가 없습니다.\n";
-        return;
+    cout << "\n[ 정렬 기준 선택 ]\n";
+    cout << "1. 평점 높은순\n";
+    cout << "2. 평점 많은순\n";
+    cout << "3. 제목 사전순\n";
+    cout << "4. 장르 사전순\n";
+    cout << "5. 개봉연도순 (최신순)\n";
+    cout << "선택 (기본값: 3): ";
+    
+    int sortChoice;
+    if (!(cin >> sortChoice)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        sortChoice = 3;
     }
 
     vector<Movie> sortedMovies = movies;
-    std::sort(sortedMovies.begin(), sortedMovies.end(), std::greater<Movie>());
 
-    cout << "\n#### 평점순 영화 목록 ####\n";
+    string sortName = "제목 사전순";
+    switch (sortChoice) {
+        case 1: {
+            sortName = "평점 높은순";
+            std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
+                if (a.getAverageRating() != b.getAverageRating()) {
+                    return a.getAverageRating() > b.getAverageRating();
+                }
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        }
+        case 2: {
+            sortName = "평점 많은순";
+            std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
+                if (a.getRatingCount() != b.getRatingCount()) {
+                    return a.getRatingCount() > b.getRatingCount();
+                }
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        }
+        case 4: {
+            sortName = "장르 사전순";
+            std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
+                if (a.getGenre() != b.getGenre()) {
+                    return a.getGenre() < b.getGenre();
+                }
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        }
+        case 5: {
+            sortName = "개봉연도순 (최신순)";
+            std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
+                if (a.getReleaseYear() != b.getReleaseYear()) {
+                    return a.getReleaseYear() > b.getReleaseYear();
+                }
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        }
+        case 3:
+        default: {
+            std::sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie& a, const Movie& b) {
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        }
+    }
+
+    size_t maxTitleLen = 0;
+    size_t maxGenreLen = 0;
     for (const auto& m : sortedMovies) {
-        cout << m << '\n';
+        if (m.getTitle().length() > maxTitleLen) {
+            maxTitleLen = m.getTitle().length();
+        }
+        if (m.getGenre().length() > maxGenreLen) {
+            maxGenreLen = m.getGenre().length();
+        }
+    }
+
+    cout << "\n#### 전체 영화 목록 (정렬: " << sortName << ") ####\n";
+    for (const auto& m : sortedMovies) {
+        cout << std::left << std::setw(maxTitleLen + 2) << m.getTitle() 
+             << " | " << std::setw(maxGenreLen + 2) << m.getGenre() 
+             << " | " << m.getReleaseYear() << "년"
+             << " | 평점: " << std::fixed << std::setprecision(1) << m.getAverageRating() 
+             << " (" << m.getRatingCount() << "건)\n";
     }
 }
 
@@ -106,7 +175,9 @@ void MovieManager::loadFromFile() {
     
     int count = 0;
     while (std::getline(file, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) {
+            continue;
+        }
         std::stringstream ss(line);
         string title, genre, yearStr, totalRatingStr, ratingCountStr;
 

@@ -37,18 +37,15 @@ bool Movie::addRating(double r) {
     return true;
 }
 
-bool Movie::operator>(const Movie& other) const {
-    if (getAverageRating() != other.getAverageRating()) {
-        return getAverageRating() > other.getAverageRating();
-    }
-    return name < other.name;
-}
-
 bool Movie::operator==(const Movie& other) const {
     return name == other.name;
 }
 
 std::ostream& operator<<(std::ostream& os, const Movie& m) {
-    os << m.name << " (" << m.releaseYear << ")" << "  평점: " << m.getAverageRating() << " (" << m.ratingCount << "건)";
+    os << " 제목: " << m.name 
+       << " | 장르: " << m.genre 
+       << " | 연도: " << m.releaseYear 
+       << " | 평점: " << m.getAverageRating() 
+       << " (" << m.ratingCount << "건)";
     return os;
 }

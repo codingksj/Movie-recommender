@@ -45,7 +45,9 @@ double Recommender::calculateSimilarity(const vector<Rating>& ratingsA,
     }
 
     double denominator = sqrt(magA) * sqrt(magB);
-    if (denominator == 0.0) return 0.0;
+    if (denominator == 0.0) {
+        return 0.0;
+    }
 
     return dotProduct / denominator;
 }
@@ -69,7 +71,9 @@ void Recommender::findSimilarUsers() {
 
     vector<pair<string, double>> similarities;
     for (const auto& user : userManager.getUsers()) {
-        if (user.getUserName() == targetUser) continue;
+        if (user.getUserName() == targetUser) {
+            continue;
+        }
         vector<Rating> otherRatings = getUserRatings(user.getUserName());
         double sim = calculateSimilarity(targetRatings, otherRatings);
         similarities.push_back({user.getUserName(), sim});
@@ -84,12 +88,18 @@ void Recommender::findSimilarUsers() {
     cout << "\n[ " << targetUser << "와 유사한 사용자 상위 3명 ]\n";
     int count = 0;
     for (const auto& s : similarities) {
-        if (s.second <= 0.0) continue;
+        if (s.second <= 0.0) {
+            continue;
+        }
         cout << ++count << ". " << s.first
              << " (유사도: " << fixed << setprecision(3) << s.second << ")\n";
-        if (count >= 3) break;
+        if (count >= 3) {
+            break;
+        }
     }
-    if (count == 0) cout << "유사한 사용자가 없습니다.\n";
+    if (count == 0) {
+        cout << "유사한 사용자가 없습니다.\n";
+    }
 }
 
 vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
@@ -100,9 +110,13 @@ vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
 
     vector<pair<string, double>> userSims;
     for (const auto& user : userManager.getUsers()) {
-        if (user.getUserName() == targetUser) continue;
+        if (user.getUserName() == targetUser) {
+            continue;
+        }
         vector<Rating> otherRatings = getUserRatings(user.getUserName());
-        if (otherRatings.empty()) continue;
+        if (otherRatings.empty()) {
+            continue;
+        }
 
         double sim = calculateSimilarity(targetRatings, otherRatings);
         if (sim > 0.0) {
@@ -162,7 +176,9 @@ vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
     int count = 0;
     for (const auto& c : candidates) {
         result.push_back(c.first);
-        if (++count >= N) break;
+        if (++count >= N) {
+            break;
+        }
     }
 
     return result;
