@@ -79,7 +79,7 @@ void RatingManager::printRatingsByMovie() {
         return;
     }
 
-    showDynamicResult("[" + movieTitle + "] 평점 목록", lines);
+    Menu::showDynamicResult("[" + movieTitle + "] 평점 목록", lines);
 }
 
 // 파일에서 평점 데이터 불러오기

@@ -85,8 +85,8 @@ void MovieManager::printAllMovies() {
         return;
     }
 
-    showSubMenu(TITLE_SORT, OPTIONS_SORT);
-    int sortChoice = getChoice();
+    Menu::showSubMenu(TITLE_SORT, OPTIONS_SORT);
+    int sortChoice = Menu::getChoice();
     if (sortChoice <= 0 || sortChoice > SORT_YEAR) {
         sortChoice = SORT_TITLE;
     }
@@ -166,7 +166,7 @@ void MovieManager::printAllMovies() {
         lines.push_back(ss.str());
     }
 
-    showDynamicResult("전체 영화 목록 (정렬: " + sortName + ")", lines);
+    Menu::showDynamicResult("전체 영화 목록 (정렬: " + sortName + ")", lines);
 }
 
 // 제목으로 특정 영화 포인터 검색

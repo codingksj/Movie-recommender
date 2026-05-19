@@ -31,8 +31,8 @@ int main() {
 
     bool running = true;
     while (running) {
-        showMainMenu();
-        int mainChoice = getChoice();
+        Menu::showMainMenu();
+        int mainChoice = Menu::getChoice();
 
         if (mainChoice == 0) {
             cout << "데이터를 저장하고 프로그램을 종료합니다.\n";
@@ -45,16 +45,16 @@ int main() {
 
         switch (mainChoice) {
             case 1:
-                handleMovieMenu(movieManager);
+                Menu::handleMovieMenu(movieManager);
                 break;
             case 2:
-                handleUserMenu(userManager);
+                Menu::handleUserMenu(userManager);
                 break;
             case 3:
-                handleRatingMenu(ratingManager, movieManager, userManager);
+                Menu::handleRatingMenu(ratingManager, movieManager, userManager);
                 break;
             case 4:
-                handleRecommendationMenu(recommender);
+                Menu::handleRecommendationMenu(recommender);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";

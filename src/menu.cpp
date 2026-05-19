@@ -55,15 +55,24 @@ const int COLLAB_K = 3;
 const int COLLAB_N = 5;
 const int GENRE_N = 5;
 
+// 결과 리스트의 각 항목에 인덱스 번호를 붙여 포맷팅
+vector<string> formatList(const vector<string>& items) {
+    vector<string> lines;
+    for (size_t i = 0; i < items.size(); ++i) {
+        lines.push_back("  " + to_string(i + 1) + ". " + items[i]);
+    }
+    return lines;
+}
+
 // 상단 타이틀 배너 출력
-void showHeader(const string& title) {
+void Menu::showHeader(const string& title) {
     cout << "\n========================================\n";
     cout << "       " << title << "\n";
     cout << "========================================\n";
 }
 
 // 메인 메뉴 출력
-void showMainMenu() {
+void Menu::showMainMenu() {
     showHeader(TITLE_MAIN);
     for (size_t i = 0; i < OPTIONS_MAIN.size(); ++i) {
         cout << "  [" << (i + 1) << "] " << OPTIONS_MAIN[i] << "\n";
@@ -74,7 +83,7 @@ void showMainMenu() {
 }
 
 // 서브 메뉴 출력
-void showSubMenu(const string& title, const vector<string>& options) {
+void Menu::showSubMenu(const string& title, const vector<string>& options) {
     showHeader(title);
     for (size_t i = 0; i < options.size(); ++i) {
         cout << "  [" << (i + 1) << "] " << options[i] << "\n";
@@ -85,7 +94,7 @@ void showSubMenu(const string& title, const vector<string>& options) {
 }
 
 // 다이나믹 너비 기준 결과 리스트 출력
-void showDynamicResult(const string& title, const vector<string>& lines) {
+void Menu::showDynamicResult(const string& title, const vector<string>& lines) {
     size_t max_len = title.length() + TITLE_PAD;
     for (const auto& line : lines) {
         if (line.length() > max_len) {
@@ -100,8 +109,7 @@ void showDynamicResult(const string& title, const vector<string>& lines) {
     string border(max_len + 4, '=');
     cout << "\n" << border << "\n";
     
-    int padding = (static_cast<int>(max_len) + 4 - static_cast<int>(title.length())) / 2;
-    if (padding < 0) padding = 0;
+    int padding = (max_len + 4 - title.length()) / 2;
     cout << string(padding, ' ') << title << "\n";
     cout << border << "\n";
 
@@ -112,7 +120,7 @@ void showDynamicResult(const string& title, const vector<string>& lines) {
 }
 
 // 사용자 선택 정수값 입력 받기
-int getChoice() {
+int Menu::getChoice() {
     int choice;
     if (!(cin >> choice)) {
         cin.clear();
@@ -123,7 +131,7 @@ int getChoice() {
 }
 
 // 영화 관리 메뉴 처리 루프
-void handleMovieMenu(MovieManager& movieManager) {
+void Menu::handleMovieMenu(MovieManager& movieManager) {
     while (true) {
         showSubMenu(TITLE_MOVIE, OPTIONS_MOVIE);
         int subChoice = getChoice();
@@ -143,7 +151,7 @@ void handleMovieMenu(MovieManager& movieManager) {
 }
 
 // 사용자 관리 메뉴 처리 루프
-void handleUserMenu(UserManager& userManager) {
+void Menu::handleUserMenu(UserManager& userManager) {
     while (true) {
         showSubMenu(TITLE_USER, OPTIONS_USER);
         int subChoice = getChoice();
@@ -161,7 +169,7 @@ void handleUserMenu(UserManager& userManager) {
 }
 
 // 평점 관리 메뉴 처리 루프
-void handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager) {
+void Menu::handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager) {
     while (true) {
         showSubMenu(TITLE_RATING, OPTIONS_RATING);
         int subChoice = getChoice();
@@ -179,7 +187,7 @@ void handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, 
 }
 
 // 추천 서비스 메뉴 처리 루프
-void handleRecommendationMenu(Recommender& recommender) {
+void Menu::handleRecommendationMenu(Recommender& recommender) {
     while (true) {
         showSubMenu(TITLE_RECOMMEND, OPTIONS_RECOMMEND);
         int subChoice = getChoice();
@@ -233,11 +241,7 @@ void handleRecommendationMenu(Recommender& recommender) {
                 continue;
             }
 
-            vector<string> lines;
-            for (size_t i = 0; i < recommended.size(); ++i) {
-                lines.push_back("  " + to_string(i + 1) + ". " + recommended[i]);
-            }
-            showDynamicResult(targetUser + "님을 위한 추천 영화", lines);
+            showDynamicResult(targetUser + "님을 위한 추천 영화", formatList(recommended));
         } else if (subChoice == 3) {
             string title;
             cout << "기준 영화 제목 입력: ";
@@ -250,11 +254,7 @@ void handleRecommendationMenu(Recommender& recommender) {
                 continue;
             }
 
-            vector<string> lines;
-            for (size_t i = 0; i < recommended.size(); ++i) {
-                lines.push_back("  " + to_string(i + 1) + ". " + recommended[i]);
-            }
-            showDynamicResult(title + "와(과) 비슷한 장르 추천 영화", lines);
+            showDynamicResult(title + "와(과) 비슷한 장르 추천 영화", formatList(recommended));
         } else {
             cout << "잘못된 선택입니다.\n";
         }

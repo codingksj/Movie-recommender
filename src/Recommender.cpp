@@ -80,7 +80,7 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUs
              return a.second > b.second;
          });
 
-    if (limit > 0 && similarities.size() > static_cast<size_t>(limit)) {
+    if (limit > 0 && (int)similarities.size() > limit) {
         similarities.resize(limit);
     }
     return similarities;

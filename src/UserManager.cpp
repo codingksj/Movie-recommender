@@ -51,7 +51,7 @@ void UserManager::printAllUsers() {
         ss << " " << u;
         lines.push_back(ss.str());
     }
-    showDynamicResult("전체 사용자 목록", lines);
+    Menu::showDynamicResult("전체 사용자 목록", lines);
 }
 
 // 이름으로 사용자 포인터 찾기
