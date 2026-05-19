@@ -29,16 +29,24 @@ int main() {
     userManager.loadFromFile();
     ratingManager.loadFromFile();
 
+    // 로드 완료 안내 배너 출력
+    Menu::showLoadSummary(movieManager.size(), userManager.size(), ratingManager.size());
+
     bool running = true;
     while (running) {
         Menu::showMainMenu();
         int mainChoice = Menu::getChoice();
 
         if (mainChoice == 0) {
-            cout << "데이터를 저장하고 프로그램을 종료합니다.\n";
+            int movieCount = movieManager.size();
+            int userCount = userManager.size();
+            int ratingCount = ratingManager.size();
+
             movieManager.saveToFile();
             userManager.saveToFile();
             ratingManager.saveToFile();
+
+            Menu::showSaveSummary(movieCount, userCount, ratingCount);
             running = false;
             break;
         }

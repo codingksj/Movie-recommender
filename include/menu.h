@@ -20,4 +20,7 @@ public:
     static void handleUserMenu(UserManager& userManager);
     static void handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager);
     static void handleRecommendationMenu(Recommender& recommender);
+
+    static void showLoadSummary(int movieCount, int userCount, int ratingCount);
+    static void showSaveSummary(int movieCount, int userCount, int ratingCount);
 };

@@ -93,7 +93,6 @@ void UserManager::loadFromFile() {
         }
     }
     file.close();
-    cout << "사용자 데이터 로드 완료 (" << count << "건)\n";
 }
 
 // 파일로 사용자 데이터 저장하기
@@ -109,5 +108,4 @@ void UserManager::saveToFile() {
         file << u.getUserName() << "," << u.getUserEmail() << "\n";
     }
     file.close();
-    cout << "사용자 데이터 저장 완료\n";
 }

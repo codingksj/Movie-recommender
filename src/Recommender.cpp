@@ -191,7 +191,7 @@ vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int
     const auto& movies = movieManager.getMovies();
     const Movie* targetMovie = nullptr;
     for (const auto& m : movies) {
-        if (m.getTitle() == targetMovieTitle) {
+        if (m == targetMovieTitle) {
             targetMovie = &m;
             break;
         }
@@ -205,7 +205,7 @@ vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int
     vector<pair<Movie, double>> candidates;
     for (const auto& m : movies) {
         // 엣지 케이스 2: 기준이 되는 영화 자체는 추천 결과 목록에서 당연히 제외
-        if (m.getTitle() == targetMovieTitle) {
+        if (m == targetMovieTitle) {
             continue;
         }
         double sim = calculateGenreSimilarity(*targetMovie, m);

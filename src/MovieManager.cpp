@@ -57,25 +57,67 @@ void MovieManager::addMovie() {
 
 // 영화 제목 검색 프롬프트 처리
 void MovieManager::searchByTitle() {
-    string title;
+    string query;
     cout << "검색할 영화 제목: ";
     cin.ignore();
-    std::getline(cin, title);
+    if (!std::getline(cin, query) || query.empty()) {
+        return;
+    }
 
-    bool found = false;
-    Movie target(title);
+    string queryLower = query;
+    for (char& c : queryLower) {
+        c = tolower(c);
+    }
+
+    vector<std::pair<Movie, string>> matches;
+    size_t maxTitleLen = 0;
+    size_t maxGenreLen = 0;
 
     for (const auto& m : movies) {
-        if (m == target) {
-            cout << m << '\n';
-            found = true;
-            break;
+        string titleLower = m.getTitle();
+        for (char& c : titleLower) {
+            c = tolower(c);
+        }
+
+        size_t pos = titleLower.find(queryLower);
+        if (pos != string::npos) {
+            string originalTitle = m.getTitle();
+            string left = originalTitle.substr(0, pos);
+            string mid = originalTitle.substr(pos, query.length());
+            string right = originalTitle.substr(pos + query.length());
+            string highlightedTitle = left + "[" + mid + "]" + right;
+
+            matches.push_back({m, highlightedTitle});
+
+            if (highlightedTitle.length() > maxTitleLen) {
+                maxTitleLen = highlightedTitle.length();
+            }
+            if (m.getGenre().length() > maxGenreLen) {
+                maxGenreLen = m.getGenre().length();
+            }
         }
     }
 
-    if (!found) {
-        cout << "[" << title << "] 제목의 영화를 찾을 수 없습니다.\n";
+    if (matches.empty()) {
+        cout << "[" << query << "] 제목의 영화를 찾을 수 없습니다.\n";
+        return;
     }
+
+    vector<string> lines;
+    for (const auto& match : matches) {
+        const Movie& m = match.first;
+        const string& hTitle = match.second;
+
+        std::stringstream ss;
+        ss << " " << std::left << std::setw(maxTitleLen + 2) << hTitle 
+           << " | " << std::setw(maxGenreLen + 2) << m.getGenre() 
+           << " | " << m.getReleaseYear() << "년"
+           << " | 평점: " << std::fixed << std::setprecision(1) << m.getAverageRating() 
+           << " (" << m.getRatingCount() << "건)";
+        lines.push_back(ss.str());
+    }
+
+    Menu::showDynamicResult("영화 검색 결과 (" + query + ")", lines);
 }
 
 // 전체 영화 목록 정렬 및 출력
@@ -208,12 +250,18 @@ void MovieManager::loadFromFile() {
         std::getline(ss, ratingCountStr, ',');
 
         if (!title.empty()) {
-            movies.push_back(Movie(title, std::stoi(yearStr), genre, std::stod(totalRatingStr), std::stoi(ratingCountStr)));
-            count++;
+            try {
+                int year = std::stoi(yearStr);
+                double totalRating = std::stod(totalRatingStr);
+                int ratingCount = std::stoi(ratingCountStr);
+                movies.push_back(Movie(title, year, genre, totalRating, ratingCount));
+                count++;
+            } catch (const std::exception&) {
+                // 부적절한 데이터 포맷은 건너뜀
+            }
         }
     }
     file.close();
-    cout << "영화 데이터 로드 완료 (" << count << "건)\n";
 }
 
 // 파일로 영화 정보 저장하기
@@ -233,5 +281,4 @@ void MovieManager::saveToFile() {
              << m.getRatingCount() << "\n";
     }
     file.close();
-    cout << "영화 데이터 저장 완료\n";
 }

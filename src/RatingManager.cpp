@@ -67,7 +67,7 @@ void RatingManager::printRatingsByMovie() {
 
     vector<string> lines;
     for (const auto& r : ratings) {
-        if (r.getMovieTitle() == movieTitle) {
+        if (r == movieTitle) {
             std::stringstream ss;
             ss << " " << r;
             lines.push_back(ss.str());
@@ -104,12 +104,15 @@ void RatingManager::loadFromFile() {
         std::getline(ss, ratingStr, ',');
 
         if (!name.empty()) {
-            ratings.push_back(Rating(name, title, std::stod(ratingStr)));
-            count++;
+            try {
+                ratings.push_back(Rating(name, title, std::stod(ratingStr)));
+                count++;
+            } catch (const std::exception&) {
+                // 부적절한 데이터 포맷은 건너뜀
+            }
         }
     }
     file.close();
-    cout << "평점 데이터 로드 완료 (" << count << "건)\n";
 }
 
 // 파일로 평점 데이터 저장하기
@@ -125,5 +128,4 @@ void RatingManager::saveToFile() {
         file << r.getUserName() << "," << r.getMovieTitle() << "," << r.getUserRating() << "\n";
     }
     file.close();
-    cout << "평점 데이터 저장 완료\n";
 }

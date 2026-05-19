@@ -28,3 +28,21 @@ string Base::validateString(const string& val, const string& fieldName) {
     }
     return val;
 }
+
+// 대소문자 무시 동등 비교 연산자 (Base 객체 간)
+bool Base::operator==(const Base& other) const {
+    return (*this) == other.name;
+}
+
+// 대소문자 무시 동등 비교 연산자 (문자열 값과 비교)
+bool Base::operator==(const string& otherName) const {
+    if (name.length() != otherName.length()) {
+        return false;
+    }
+    for (size_t i = 0; i < name.length(); ++i) {
+        if (tolower(name[i]) != tolower(otherName[i])) {
+            return false;
+        }
+    }
+    return true;
+}

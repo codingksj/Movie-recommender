@@ -260,3 +260,25 @@ void Menu::handleRecommendationMenu(Recommender& recommender) {
         }
     }
 }
+
+// 데이터 로드 완료 안내 배너 출력
+void Menu::showLoadSummary(int movieCount, int userCount, int ratingCount) {
+    cout << "\n========================================\n";
+    cout << "          데이터 로드 완료\n";
+    cout << "========================================\n";
+    cout << "  영화 데이터     : " << movieCount << "건\n";
+    cout << "  사용자 데이터   : " << userCount << "건\n";
+    cout << "  평점 데이터     : " << ratingCount << "건\n";
+    cout << "========================================\n";
+}
+
+// 데이터 저장 완료 안내 배너 출력
+void Menu::showSaveSummary(int movieCount, int userCount, int ratingCount) {
+    cout << "\n========================================\n";
+    cout << "       데이터 저장 및 프로그램 종료\n";
+    cout << "========================================\n";
+    cout << "  영화 데이터     : " << movieCount << "건 저장 완료\n";
+    cout << "  사용자 데이터   : " << userCount << "건 저장 완료\n";
+    cout << "  평점 데이터     : " << ratingCount << "건 저장 완료\n";
+    cout << "========================================\n";
+}

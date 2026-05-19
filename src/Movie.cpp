@@ -60,9 +60,9 @@ bool Movie::addRating(double r) {
     return true;
 }
 
-// 동등 비교 연산자 오버로딩 (제목 기준)
+// 동등 비교 연산자 오버로딩 (제목 기준 - 대소문자 무시)
 bool Movie::operator==(const Movie& other) const {
-    return name == other.name;
+    return Base::operator==(other);
 }
 
 // 출력 스트림 연산자 오버로딩
