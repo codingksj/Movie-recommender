@@ -1,4 +1,7 @@
+// 사용자 추가 및 관리를 담당하는 클래스
+
 #include "UserManager.h"
+#include "menu.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,6 +11,7 @@ using std::cin;
 using std::string;
 using std::vector;
 
+// 신규 사용자 추가 프롬프트 처리
 void UserManager::addUser() {
     string name, email;
 
@@ -34,18 +38,23 @@ void UserManager::addUser() {
     cout << "사용자가 추가되었습니다. [이름: " << name << ", 이메일: " << email << "]\n";
 }
 
+// 등록된 전체 사용자 목록 출력
 void UserManager::printAllUsers() {
     if (users.empty()) {
         cout << "등록된 사용자가 없습니다.\n";
         return;
     }
 
-    cout << "\n#### 전체 사용자 목록 ####\n";
+    vector<string> lines;
     for (const auto& u : users) {
-        cout << u << '\n';
+        std::stringstream ss;
+        ss << " " << u;
+        lines.push_back(ss.str());
     }
+    showDynamicResult("전체 사용자 목록", lines);
 }
 
+// 이름으로 사용자 포인터 찾기
 const User* UserManager::findUserByName(const string& name) const {
     for (const auto& u : users) {
         if (u.getUserName() == name) {
@@ -56,6 +65,7 @@ const User* UserManager::findUserByName(const string& name) const {
     return nullptr;
 }
 
+// 파일에서 사용자 데이터 불러오기
 void UserManager::loadFromFile() {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -86,6 +96,7 @@ void UserManager::loadFromFile() {
     cout << "사용자 데이터 로드 완료 (" << count << "건)\n";
 }
 
+// 파일로 사용자 데이터 저장하기
 void UserManager::saveToFile() {
     std::ofstream file(filePath);
     if (!file.is_open()) {

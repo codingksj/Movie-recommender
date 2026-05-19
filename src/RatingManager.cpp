@@ -1,4 +1,7 @@
+// 평점 데이터를 추가 및 관리하는 클래스
+
 #include "RatingManager.h"
+#include "menu.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,6 +11,12 @@ using std::cin;
 using std::string;
 using std::vector;
 
+// 평점 점수 범위 상수
+const double MIN_RATE = 0.0;
+const double MAX_RATE = 10.0;
+const int IGN_COUNT = 1000;
+
+// 신규 평점 입력 프롬프트 처리
 void RatingManager::addRating(MovieManager& movieManager, UserManager& userManager) {
     string userName, movieTitle;
     double score;
@@ -34,10 +43,10 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
         return;
     }
 
-    cout << "평점 (0.0 ~ 10.0): ";
+    cout << "평점 (" << MIN_RATE << " ~ " << MAX_RATE << "): ";
     if (!(cin >> score)) {
         cin.clear();
-        cin.ignore(1000, '\n');
+        cin.ignore(IGN_COUNT, '\n');
         return;
     }
 
@@ -49,27 +58,31 @@ void RatingManager::addRating(MovieManager& movieManager, UserManager& userManag
     cout << "평점이 등록되었습니다. [사용자: " << userName << ", 영화: " << movieTitle << ", 평점: " << score << "]\n";
 }
 
+// 특정 영화에 대한 평점 목록 출력
 void RatingManager::printRatingsByMovie() {
     string movieTitle;
     cout << "평점을 볼 영화 제목: ";
     cin.ignore();
     std::getline(cin, movieTitle);
 
-    bool found = false;
-    cout << "\n#### [" << movieTitle << "] 평점 목록 ####\n";
-
+    vector<string> lines;
     for (const auto& r : ratings) {
         if (r.getMovieTitle() == movieTitle) {
-            cout << r << '\n';
-            found = true;
+            std::stringstream ss;
+            ss << " " << r;
+            lines.push_back(ss.str());
         }
     }
 
-    if (!found) {
+    if (lines.empty()) {
         cout << "등록된 평점이 없습니다.\n";
+        return;
     }
+
+    showDynamicResult("[" + movieTitle + "] 평점 목록", lines);
 }
 
+// 파일에서 평점 데이터 불러오기
 void RatingManager::loadFromFile() {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -99,6 +112,7 @@ void RatingManager::loadFromFile() {
     cout << "평점 데이터 로드 완료 (" << count << "건)\n";
 }
 
+// 파일로 평점 데이터 저장하기
 void RatingManager::saveToFile() {
     std::ofstream file(filePath);
     if (!file.is_open()) {

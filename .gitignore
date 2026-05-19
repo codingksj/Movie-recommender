@@ -1,0 +1,15 @@
+# ── 컴파일산출물──────────────
+*.o
+*.a
+*.out
+# ── obj/ 디렉토리째무시───────
+obj/
+# ── 실행파일(Makefile target) ─
+main
+app
+# ── IDE/에디터설정────────────
+.vscode/
+.idea/
+# ── OS 파일────────────────────
+.DS_Store
+Thumbs.db
