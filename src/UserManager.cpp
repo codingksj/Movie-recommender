@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <iomanip>
 
 using std::cout;
 using std::cin;
@@ -67,45 +69,57 @@ const User* UserManager::findUserByName(const string& name) const {
 
 // 파일에서 사용자 데이터 불러오기
 void UserManager::loadFromFile() {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        cout << "파일을 열 수 없습니다: " << filePath << "\n";
-        return;
-    }
-
-    string line;
-    std::getline(file, line);
-    
+    auto start = std::chrono::high_resolution_clock::now();
     int count = 0;
-    while (std::getline(file, line)) {
-        if (line.empty()) {
-            continue;
+    try {
+        std::ifstream file(filePath);
+        if (!file.is_open()) {
+            std::cerr << "파일을 열 수 없습니다: " << filePath << "\n";
+            return;
         }
-        std::stringstream ss(line);
-        string name, email;
-
-        std::getline(ss, name, ',');
-        std::getline(ss, email, ',');
-
-        if (!name.empty()) {
-            users.push_back(User(name, email));
-            count++;
+        string line;
+        std::getline(file, line);
+        while (std::getline(file, line)) {
+            if (line.empty()) continue;
+            std::stringstream ss(line);
+            string name, email;
+            std::getline(ss, name, ',');
+            std::getline(ss, email, ',');
+            if (!name.empty()) {
+                users.push_back(User(name, email));
+                count++;
+            }
         }
+        file.close();
+    } catch (const std::exception& e) {
+        std::cerr << "UserManager::loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    file.close();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    double ms = duration / 1000.0;
+    std::cout << "UserManager::loadFromFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
 }
 
 // 파일로 사용자 데이터 저장하기
 void UserManager::saveToFile() {
-    std::ofstream file(filePath);
-    if (!file.is_open()) {
-        cout << "파일을 저장할 수 없습니다: " << filePath << "\n";
-        return;
+    auto start = std::chrono::high_resolution_clock::now();
+    try {
+        std::ofstream file(filePath);
+        if (!file.is_open()) {
+            std::cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
+            return;
+        }
+        file << "userName,userEmail\n";
+        for (const auto &u : users) {
+            file << u.getUserName() << "," << u.getUserEmail() << "\n";
+        }
+        file.close();
+    } catch (const std::exception &e) {
+        std::cerr << "UserManager::saveToFile 예외 발생: " << e.what() << "\n";
     }
-
-    file << "userName,userEmail\n";
-    for (const auto& u : users) {
-        file << u.getUserName() << "," << u.getUserEmail() << "\n";
-    }
-    file.close();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    double ms = duration / 1000.0;
+    std::cout << "UserManager::saveToFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
 }
+

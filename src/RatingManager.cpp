@@ -2,9 +2,12 @@
 
 #include "RatingManager.h"
 #include "menu.h"
-#include <iostream>
+#include <exception>
 #include <fstream>
+#include <iostream>
 #include <sstream>
+#include <chrono>
+#include <iomanip>
 
 using std::cout;
 using std::cin;
@@ -84,48 +87,57 @@ void RatingManager::printRatingsByMovie() {
 
 // 파일에서 평점 데이터 불러오기
 void RatingManager::loadFromFile() {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        cout << "파일을 열 수 없습니다: " << filePath << "\n";
-        return;
-    }
-
-    string line;
-    std::getline(file, line);
-    
-    int count = 0;
-    while (std::getline(file, line)) {
-        if (line.empty()) continue;
-        std::stringstream ss(line);
-        string name, title, ratingStr;
-
-        std::getline(ss, name, ',');
-        std::getline(ss, title, ',');
-        std::getline(ss, ratingStr, ',');
-
-        if (!name.empty()) {
-            try {
-                ratings.push_back(Rating(name, title, std::stod(ratingStr)));
-                count++;
-            } catch (const std::exception&) {
-                // 부적절한 데이터 포맷은 건너뜀
+    auto start = std::chrono::high_resolution_clock::now();
+    try {
+        std::ifstream file(filePath);
+        if (!file.is_open()) {
+            std::cerr << "파일을 열 수 없습니다: " << filePath << "\n";
+            return;
+        }
+        string line;
+        std::getline(file, line);
+        int count = 0;
+        while (std::getline(file, line)) {
+            if (line.empty()) continue;
+            std::stringstream ss(line);
+            string name, title, ratingStr;
+            std::getline(ss, name, ',');
+            std::getline(ss, title, ',');
+            std::getline(ss, ratingStr, ',');
+            if (!name.empty()) {
+                try {
+                    ratings.push_back(Rating(name, title, std::stod(ratingStr)));
+                    count++;
+                } catch (const std::exception &e) {
+                    // skip malformed
+                }
             }
         }
+        file.close();
+    } catch (const std::exception &e) {
+        std::cerr << "RatingManager::loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    file.close();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    double ms = duration / 1000.0;
+    std::cout << "RatingManager::loadFromFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
 }
 
 // 파일로 평점 데이터 저장하기
 void RatingManager::saveToFile() {
-    std::ofstream file(filePath);
-    if (!file.is_open()) {
-        cout << "파일을 저장할 수 없습니다: " << filePath << "\n";
-        return;
-    }
+    try {
+        std::ofstream file(filePath);
+        if (!file.is_open()) {
+            std::cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
+            return;
+        }
 
-    file << "userName,movieTitle,userRating\n";
-    for (const auto& r : ratings) {
-        file << r.getUserName() << "," << r.getMovieTitle() << "," << r.getUserRating() << "\n";
+        file << "userName,movieTitle,userRating\n";
+        for (const auto& r : ratings) {
+            file << r.getUserName() << "," << r.getMovieTitle() << "," << r.getUserRating() << "\n";
+        }
+        file.close();
+    } catch (const std::exception& e) {
+        std::cerr << "RatingManager::saveToFile 예외 발생: " << e.what() << "\n";
     }
-    file.close();
 }
