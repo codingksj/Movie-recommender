@@ -2,6 +2,7 @@
 
 #include "MovieManager.h"
 #include <iostream>
+#include <chrono>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -31,6 +32,7 @@ const int SORT_YEAR = 5;
 
 // 신규 영화 추가 프롬프트 처리
 void MovieManager::addMovie() {
+    auto start = std::chrono::high_resolution_clock::now();
     string title, genre;
     int year;
 
@@ -53,10 +55,14 @@ void MovieManager::addMovie() {
 
     movies.push_back(Movie(title, year, genre));
     cout << "영화가 추가되었습니다. [제목: " << title << ", 연도: " << year << ", 장르: " << genre << "]\n";
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    std::cout << "addMovie took " << duration << " µs\n";
 }
 
 // 영화 제목 검색 프롬프트 처리
 void MovieManager::searchByTitle() {
+    auto start = std::chrono::high_resolution_clock::now();
     string query;
     cout << "검색할 영화 제목: ";
     cin.ignore();
@@ -118,10 +124,14 @@ void MovieManager::searchByTitle() {
     }
 
     Menu::showDynamicResult("영화 검색 결과 (" + query + ")", lines);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    std::cout << "searchByTitle took " << duration << " µs\n";
 }
 
 // 전체 영화 목록 정렬 및 출력
 void MovieManager::printAllMovies() {
+    auto start = std::chrono::high_resolution_clock::now();
     if (movies.empty()) {
         cout << "등록된 영화가 없습니다.\n";
         return;
@@ -209,6 +219,9 @@ void MovieManager::printAllMovies() {
     }
 
     Menu::showDynamicResult("전체 영화 목록 (정렬: " + sortName + ")", lines);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    std::cout << "printAllMovies took " << duration << " µs\n";
 }
 
 // 제목으로 특정 영화 포인터 검색
