@@ -1,221 +1,153 @@
-// 영화 목록을 추가, 검색 및 관리하는 클래스
+// 시스템 내 영화 데이터를 추가, 검색 및 관리하기 위해 설계된 클래스
 
 #include "MovieManager.h"
 #include <iostream>
 #include <exception>
-
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include "menu.h"
 
-using std::cout;
-using std::cin;
-using std::string;
-using std::vector;
+using namespace std;
 
-// 정렬 관련 서브메뉴 상수
-const string TITLE_SORT = "정렬 기준 선택";
-const vector<string> OPTIONS_SORT = {
-    "평점 높은순",
-    "평점 많은순",
-    "제목 사전순",
-    "장르 사전순",
-    "개봉연도순 (최신순)"
-};
-
-// 정렬 선택 번호 상수
-const int SORT_RATE = 1;
-const int SORT_CNT = 2;
-const int SORT_TITLE = 3;
-const int SORT_GENRE = 4;
-const int SORT_YEAR = 5;
-
-// 신규 영화 추가 프롬프트 처리
-void MovieManager::addMovie() {
-    auto start = std::chrono::high_resolution_clock::now();
+// 신규 영화를 시스템에 등록하기 위해 중복 검사 후 데이터를 추가함
+pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, const string& genre) {
+    auto start = chrono::high_resolution_clock::now();
     try {
-        string title, genre;
-        int year;
-        cout << "영화 제목: ";
-        cin.ignore();
-        if (!std::getline(cin, title) || title.empty()) {
-            return;
-        }
-        cout << "장르: ";
-        std::getline(cin, genre);
-        cout << "출시 연도: ";
-        if (!(cin >> year)) {
-            cin.clear();
-            cin.ignore(1000, '\n');
-            cout << "올바른 연도(숫자)를 입력해주세요.\n";
-            return;
+        Movie target(title);
+        for (const auto& m : movies) {
+            if (m == target) {
+                auto end = chrono::high_resolution_clock::now();
+                return {MovieResult::DUPLICATE_MOVIE, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+            }
         }
         movies.push_back(Movie(title, year, genre));
-        cout << "영화가 추가되었습니다. [제목: " << title << ", 연도: " << year << ", 장르: " << genre << "]\n";
-    } catch (const std::exception &e) {
-        std::cerr << "addMovie 예외 발생: " << e.what() << "\n";
+    } catch (const exception &e) {
+        cerr << "addMovie 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "addMovie took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
-}
-// 영화 제목 검색 프롬프트 처리
-void MovieManager::searchByTitle() {
-    try {
-        string query;
-        cout << "검색할 영화 제목: ";
-        cin.ignore();
-        if (!std::getline(cin, query) || query.empty()) {
-            return;
-        }
-        string queryLower = query;
-        for (char &c : queryLower) {
-            c = tolower(c);
-        }
-        // Start core search timer
-        auto searchStart = std::chrono::high_resolution_clock::now();
-        vector<std::pair<Movie, string>> matches;
-        size_t maxTitleLen = 0;
-        size_t maxGenreLen = 0;
-        for (const auto &m : movies) {
-            string titleLower = m.getTitle();
-            for (char &c : titleLower) {
-                c = tolower(c);
-            }
-            size_t pos = titleLower.find(queryLower);
-            if (pos != string::npos) {
-                string originalTitle = m.getTitle();
-                string left = originalTitle.substr(0, pos);
-                string mid = originalTitle.substr(pos, query.length());
-                string right = originalTitle.substr(pos + query.length());
-                string highlightedTitle = left + "[" + mid + "]" + right;
-                matches.push_back({m, highlightedTitle});
-                if (highlightedTitle.length() > maxTitleLen) maxTitleLen = highlightedTitle.length();
-                if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
-            }
-        }
-        auto searchEnd = std::chrono::high_resolution_clock::now();
-        auto searchDuration = std::chrono::duration_cast<std::chrono::microseconds>(searchEnd - searchStart).count();
-        if (matches.empty()) {
-            cout << "[" << query << "] 제목의 영화를 찾을 수 없습니다.\n";
-            return;
-        }
-        vector<string> lines;
-        for (const auto &match : matches) {
-            const Movie &m = match.first;
-            const string &hTitle = match.second;
-            std::stringstream ss;
-            ss << " " << std::left << std::setw(maxTitleLen + 2) << hTitle
-               << " | " << std::setw(maxGenreLen + 2) << m.getGenre()
-               << " | " << m.getReleaseYear() << "년"
-               << " | 평점: " << std::fixed << std::setprecision(1) << m.getAverageRating()
-               << " (" << m.getRatingCount() << "건)";
-            lines.push_back(ss.str());
-        }
-        Menu::showDynamicResult("영화 검색 결과 (" + query + ")", lines);
-        // Report timing (core search in ms)
-        std::cout << "search core took " << (searchDuration / 1000.0) << " ms" << std::endl;
-    } catch (const std::exception &e) {
-        std::cerr << "searchByTitle 예외 발생: " << e.what() << "\n";
-    }
-
+    auto end = chrono::high_resolution_clock::now();
+    return {MovieResult::SUCCESS, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
 }
 
-// 전체 영화 목록 정렬 및 출력
-void MovieManager::printAllMovies() {
-    auto start = std::chrono::high_resolution_clock::now();
-    try {
-        if (movies.empty()) {
-            cout << "등록된 영화가 없습니다.\n";
-            return;
-        }
-        Menu::showSubMenu(TITLE_SORT, OPTIONS_SORT);
-        int sortChoice = Menu::getChoice();
-        if (sortChoice <= 0 || sortChoice > SORT_YEAR) {
-            sortChoice = SORT_TITLE;
-        }
-
-
-        string sortName = "제목 사전순";
-        switch (sortChoice) {
-            case SORT_RATE: {
-                sortName = "평점 높은순";
-                std::sort(movies.begin(), movies.end(), [](const Movie &a, const Movie &b) {
-                    if (a.getAverageRating() != b.getAverageRating()) {
-                        return a.getAverageRating() > b.getAverageRating();
-                    }
-                    return a.getTitle() < b.getTitle();
-                });
-                break;
-            }
-            case SORT_CNT: {
-                sortName = "평점 많은순";
-                std::sort(movies.begin(), movies.end(), [](const Movie &a, const Movie &b) {
-                    if (a.getRatingCount() != b.getRatingCount()) {
-                        return a.getRatingCount() > b.getRatingCount();
-                    }
-                    return a.getTitle() < b.getTitle();
-                });
-                break;
-            }
-            case SORT_GENRE: {
-                sortName = "장르 사전순";
-                std::sort(movies.begin(), movies.end(), [](const Movie &a, const Movie &b) {
-                    if (a.getGenre() != b.getGenre()) {
-                        return a.getGenre() < b.getGenre();
-                    }
-                    return a.getTitle() < b.getTitle();
-                });
-                break;
-            }
-            case SORT_YEAR: {
-                sortName = "개봉연도순 (최신순)";
-                std::sort(movies.begin(), movies.end(), [](const Movie &a, const Movie &b) {
-                    if (a.getReleaseYear() != b.getReleaseYear()) {
-                        return a.getReleaseYear() > b.getReleaseYear();
-                    }
-                    return a.getTitle() < b.getTitle();
-                });
-                break;
-            }
-            case SORT_TITLE:
-            default: {
-                std::sort(movies.begin(), movies.end(), [](const Movie &a, const Movie &b) {
-                    return a.getTitle() < b.getTitle();
-                });
-                break;
-            }
-        }
-        size_t maxTitleLen = 0;
-        size_t maxGenreLen = 0;
-        for (const auto &m : movies) {
-            if (m.getTitle().length() > maxTitleLen) maxTitleLen = m.getTitle().length();
+// 주어진 쿼리로 영화 제목을 검색하고 포맷팅된 문자열 목록을 반환함
+pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& query, string& outQuery) const {
+    string queryLower = query;
+    for (char &c : queryLower) c = tolower(c);
+    
+    auto searchStart = chrono::high_resolution_clock::now();
+    vector<pair<Movie, string>> matches;
+    size_t maxTitleLen = 0, maxGenreLen = 0;
+    
+    for (const auto &m : movies) {
+        string titleLower = m.getTitle();
+        for (char &c : titleLower) c = tolower(c);
+        
+        size_t pos = titleLower.find(queryLower);
+        if (pos != string::npos) {
+            string originalTitle = m.getTitle();
+            string left = originalTitle.substr(0, pos);
+            string mid = originalTitle.substr(pos, query.length());
+            string right = originalTitle.substr(pos + query.length());
+            string highlightedTitle = left + "[" + mid + "]" + right;
+            matches.push_back({m, highlightedTitle});
+            if (highlightedTitle.length() > maxTitleLen) maxTitleLen = highlightedTitle.length();
             if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
         }
-        vector<string> lines;
-        for (const auto &m : movies) {
-            std::stringstream ss;
-            ss << " " << std::left << std::setw(maxTitleLen + 2) << m.getTitle()
-               << " | " << std::setw(maxGenreLen + 2) << m.getGenre()
-               << " | " << m.getReleaseYear() << "년"
-               << " | 평점: " << std::fixed << std::setprecision(1) << m.getAverageRating()
-               << " (" << m.getRatingCount() << "건)";
-            lines.push_back(ss.str());
-        }
-        Menu::showDynamicResult("전체 영화 목록 (정렬: " + sortName + ")", lines);
-    } catch (const std::exception &e) {
-        std::cerr << "printAllMovies 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "printAllMovies took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
+    auto searchEnd = chrono::high_resolution_clock::now();
+    double ms = chrono::duration_cast<chrono::microseconds>(searchEnd - searchStart).count() / 1000.0;
+    
+    vector<string> lines;
+    for (const auto &match : matches) {
+        const Movie &m = match.first;
+        const string &hTitle = match.second;
+        stringstream ss;
+        ss << " " << left << setw(maxTitleLen + 2) << hTitle
+           << " | " << setw(maxGenreLen + 2) << m.getGenre()
+           << " | " << m.getReleaseYear() << "년"
+           << " | 평점: " << fixed << setprecision(1) << m.getAverageRating()
+           << " (" << m.getRatingCount() << "건)";
+        lines.push_back(ss.str());
+    }
+    
+    outQuery = query;
+    return {lines, ms};
 }
 
-// 제목으로 특정 영화 포인터 검색
+// 전체 영화 목록을 요청된 기준에 따라 정렬하고 포맷팅하여 반환함
+pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoice, string& outSortName) const {
+    auto start = chrono::high_resolution_clock::now();
+    vector<string> lines;
+    
+    if (movies.empty()) {
+        auto end = chrono::high_resolution_clock::now();
+        double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+        return {lines, ms};
+    }
+    
+    vector<Movie> sortedMovies = movies;
+    outSortName = MovieConstants::OPTIONS_SORT[2]; // 기본값: 제목순
+    
+    switch (sortChoice) {
+        case MovieConstants::SORT_RATE:
+            outSortName = MovieConstants::OPTIONS_SORT[0];
+            sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
+                if (a.getAverageRating() != b.getAverageRating()) return a.getAverageRating() > b.getAverageRating();
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        case MovieConstants::SORT_CNT:
+            outSortName = MovieConstants::OPTIONS_SORT[1];
+            sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
+                if (a.getRatingCount() != b.getRatingCount()) return a.getRatingCount() > b.getRatingCount();
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        case MovieConstants::SORT_GENRE:
+            outSortName = MovieConstants::OPTIONS_SORT[3];
+            sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
+                if (a.getGenre() != b.getGenre()) return a.getGenre() < b.getGenre();
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        case MovieConstants::SORT_YEAR:
+            outSortName = MovieConstants::OPTIONS_SORT[4];
+            sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
+                if (a.getReleaseYear() != b.getReleaseYear()) return a.getReleaseYear() > b.getReleaseYear();
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+        case MovieConstants::SORT_TITLE:
+        default:
+            sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
+                return a.getTitle() < b.getTitle();
+            });
+            break;
+    }
+    
+    size_t maxTitleLen = 0, maxGenreLen = 0;
+    for (const auto &m : sortedMovies) {
+        if (m.getTitle().length() > maxTitleLen) maxTitleLen = m.getTitle().length();
+        if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
+    }
+    
+    for (const auto &m : sortedMovies) {
+        stringstream ss;
+        ss << " " << left << setw(maxTitleLen + 2) << m.getTitle()
+           << " | " << setw(maxGenreLen + 2) << m.getGenre()
+           << " | " << m.getReleaseYear() << "년"
+           << " | 평점: " << fixed << setprecision(1) << m.getAverageRating()
+           << " (" << m.getRatingCount() << "건)";
+        lines.push_back(ss.str());
+    }
+    
+    auto end = chrono::high_resolution_clock::now();
+    double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    
+    return {lines, ms};
+}
+
+// 제목으로 특정 영화 포인터 검색 (외부에서 영화 유무 확인 등을 위함)
 Movie* MovieManager::findMovieByTitle(const string &title) {
     Movie target(title);
     for (auto &m : movies) {
@@ -226,51 +158,49 @@ Movie* MovieManager::findMovieByTitle(const string &title) {
     return nullptr;
 }
 
-// 파일에서 영화 정보 불러오기
-void MovieManager::loadFromFile() {
-    auto start = std::chrono::high_resolution_clock::now();
+// 파일에서 영화 정보를 메모리로 불러오기 위함
+double MovieManager::loadFromFile() {
+    auto start = chrono::high_resolution_clock::now();
     try {
-        std::ifstream file(filePath);
+        ifstream file(filePath);
         if (!file.is_open()) {
-            std::cerr << "파일을 열 수 없습니다: " << filePath << "\n";
-            return;
+            cerr << "파일을 열 수 없습니다: " << filePath << "\n";
+            return 0.0;
         }
         string line;
-        std::getline(file, line); // skip header
-        while (std::getline(file, line)) {
+        getline(file, line);
+        while (getline(file, line)) {
             if (line.empty()) continue;
-            std::stringstream ss(line);
+            stringstream ss(line);
             string title, genre, yearStr, totalRatingStr, ratingCountStr;
-            std::getline(ss, title, ',');
-            std::getline(ss, genre, ',');
-            std::getline(ss, yearStr, ',');
-            std::getline(ss, totalRatingStr, ',');
-            std::getline(ss, ratingCountStr, ',');
+            getline(ss, title, ',');
+            getline(ss, genre, ',');
+            getline(ss, yearStr, ',');
+            getline(ss, totalRatingStr, ',');
+            getline(ss, ratingCountStr, ',');
             if (!title.empty()) {
-                int year = std::stoi(yearStr);
-                double totalRating = std::stod(totalRatingStr);
-                int ratingCount = std::stoi(ratingCountStr);
+                int year = stoi(yearStr);
+                double totalRating = stod(totalRatingStr);
+                int ratingCount = stoi(ratingCountStr);
                 movies.push_back(Movie(title, year, genre, totalRating, ratingCount));
             }
         }
         file.close();
-    } catch (const std::exception &e) {
-        std::cerr << "loadFromFile 예외 발생: " << e.what() << "\n";
+    } catch (const exception &e) {
+        cerr << "loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "MovieManager::loadFromFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
 }
 
-// 파일로 영화 정보 저장하기
-void MovieManager::saveToFile() {
-    auto start = std::chrono::high_resolution_clock::now();
+// 메모리의 영화 정보를 파일에 안전하게 보관하기 위함
+double MovieManager::saveToFile() {
+    auto start = chrono::high_resolution_clock::now();
     try {
-        std::ofstream file(filePath);
+        ofstream file(filePath);
         if (!file.is_open()) {
-            std::cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
-            return;
+            cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
+            return 0.0;
         }
         file << "title,genre,year,totalRating,ratingCount\n";
         for (const auto &m : movies) {
@@ -278,11 +208,9 @@ void MovieManager::saveToFile() {
                  << (m.getAverageRating() * m.getRatingCount()) << "," << m.getRatingCount() << "\n";
         }
         file.close();
-    } catch (const std::exception &e) {
-        std::cerr << "saveToFile 예외 발생: " << e.what() << "\n";
+    } catch (const exception &e) {
+        cerr << "saveToFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "MovieManager::saveToFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
 }

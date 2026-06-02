@@ -1,4 +1,4 @@
-// 메뉴를 깔끔하게 하기 위해 추가하였음.
+// 사용자 입출력 및 메뉴 제어를 분리하여 단일 책임 원칙을 준수하기 위함
 
 #pragma once
 #include <string>
@@ -23,4 +23,19 @@ public:
 
     static void showLoadSummary(int movieCount, int userCount, int ratingCount);
     static void showSaveSummary(int movieCount, int userCount, int ratingCount);
+
+private:
+    static void promptAddMovie(MovieManager& movieManager);
+    static void promptSearchMovie(MovieManager& movieManager);
+    static void promptPrintMovies(MovieManager& movieManager);
+
+    static void promptAddUser(UserManager& userManager);
+    static void promptPrintUsers(UserManager& userManager);
+
+    static void promptAddRating(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager);
+    static void promptPrintRatings(RatingManager& ratingManager);
+
+    static void promptSimilarUsers(Recommender& recommender);
+    static void promptRecommendByUser(Recommender& recommender);
+    static void promptRecommendByGenre(Recommender& recommender);
 };

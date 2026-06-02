@@ -1,21 +1,18 @@
 // 사용자별 영화 평점을 나타내는 Rating 클래스
 
-#include "rating.h"
+#include "Rating.h"
+#include "movieConstant.h"
 #include <iostream>
 
 using std::string;
 using std::cout;
 
-// 평점 점수 범위 상수
-const double MIN_RATE = 0.0;
-const double MAX_RATE = 10.0;
-
 // 유저 이름, 영화 제목, 평점 점수를 받는 생성자
 Rating::Rating(string userName, string movieTitle, double userRating)
     : Base(movieTitle) {
     this->userName = Base::validateString(userName, "유저 이름");
-    if (userRating < MIN_RATE || userRating > MAX_RATE) {
-        this->userRating = MIN_RATE;
+    if (userRating < MovieConstants::MIN_RATE || userRating > MovieConstants::MAX_RATE) {
+        this->userRating = MovieConstants::MIN_RATE;
     } else {
         this->userRating = userRating;
     }

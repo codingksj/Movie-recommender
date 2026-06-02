@@ -11,7 +11,7 @@ public:
     void setFilePath(const std::string& path) { filePath = path; }
     const std::string& getFilePath() const { return filePath; }
 
-    virtual void loadFromFile() = 0;
-    virtual void saveToFile() = 0;
+    virtual double loadFromFile() = 0;
+    virtual double saveToFile() = 0;
     virtual int size() = 0;
 };

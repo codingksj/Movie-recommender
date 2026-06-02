@@ -1,125 +1,103 @@
-// 사용자 추가 및 관리를 담당하는 클래스
+// 시스템에서 회원 가입 및 정보 조회를 처리하기 위해 설계된 클래스
 
 #include "UserManager.h"
-#include "menu.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <chrono>
-#include <iomanip>
 
-using std::cout;
-using std::cin;
-using std::string;
-using std::vector;
+using namespace std;
 
-// 신규 사용자 추가 프롬프트 처리
-void UserManager::addUser() {
-    string name, email;
-
-    cout << "사용자 이름: ";
-    cin.ignore();
-    if (!std::getline(cin, name) || name.empty()) {
-        return;
-    }
-
-    cout << "사용자 이메일: ";
-    if (!std::getline(cin, email) || email.empty()) {
-        return;
-    }
-
+// 신규 사용자를 시스템에 등록하기 위해 중복 확인 후 데이터를 추가함
+pair<UserResult, double> UserManager::addUser(const string& name, const string& email) {
+    auto start = chrono::high_resolution_clock::now();
+    
     User newUser(name, email);
     for (const auto& u : users) {
         if (u == newUser) {
-            cout << "[" << name << ", " << email << "]은(는) 이미 존재하는 사용자입니다.\n";
-            return;
+            auto end = chrono::high_resolution_clock::now();
+            double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+            return {UserResult::DUPLICATE_USER, ms};
         }
     }
 
     users.push_back(newUser);
-    cout << "사용자가 추가되었습니다. [이름: " << name << ", 이메일: " << email << "]\n";
+    
+    auto end = chrono::high_resolution_clock::now();
+    double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    
+    return {UserResult::SUCCESS, ms};
 }
 
-// 등록된 전체 사용자 목록 출력
-void UserManager::printAllUsers() {
-    if (users.empty()) {
-        cout << "등록된 사용자가 없습니다.\n";
-        return;
-    }
-
+// 등록된 전체 사용자 목록을 포맷팅된 문자열로 반환하여 외부(UI 등)에 제공하기 위함
+vector<string> UserManager::getAllUsersFormatted() const {
     vector<string> lines;
     for (const auto& u : users) {
-        std::stringstream ss;
+        stringstream ss;
         ss << " " << u;
         lines.push_back(ss.str());
     }
-    Menu::showDynamicResult("전체 사용자 목록", lines);
+    return lines;
 }
 
-// 이름으로 사용자 포인터 찾기
+// 이름으로 사용자 포인터 찾기 (외부에서 사용자 존재 여부 확인 등을 위해 제공)
 const User* UserManager::findUserByName(const string& name) const {
     for (const auto& u : users) {
         if (u.getUserName() == name) {
             return &u;
         }
     }
-
     return nullptr;
 }
 
-// 파일에서 사용자 데이터 불러오기
-void UserManager::loadFromFile() {
-    auto start = std::chrono::high_resolution_clock::now();
+// 파일에서 사용자 데이터를 메모리로 불러오기 위함
+double UserManager::loadFromFile() {
+    auto start = chrono::high_resolution_clock::now();
     int count = 0;
     try {
-        std::ifstream file(filePath);
+        ifstream file(filePath);
         if (!file.is_open()) {
-            std::cerr << "파일을 열 수 없습니다: " << filePath << "\n";
-            return;
+            cerr << "파일을 열 수 없습니다: " << filePath << "\n";
+            return 0.0;
         }
         string line;
-        std::getline(file, line);
-        while (std::getline(file, line)) {
+        getline(file, line);
+        while (getline(file, line)) {
             if (line.empty()) continue;
-            std::stringstream ss(line);
+            stringstream ss(line);
             string name, email;
-            std::getline(ss, name, ',');
-            std::getline(ss, email, ',');
+            getline(ss, name, ',');
+            getline(ss, email, ',');
             if (!name.empty()) {
                 users.push_back(User(name, email));
                 count++;
             }
         }
         file.close();
-    } catch (const std::exception& e) {
-        std::cerr << "UserManager::loadFromFile 예외 발생: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "UserManager::loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "UserManager::loadFromFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
 }
 
-// 파일로 사용자 데이터 저장하기
-void UserManager::saveToFile() {
-    auto start = std::chrono::high_resolution_clock::now();
+// 메모리의 사용자 데이터를 파일에 안전하게 보관하기 위함
+double UserManager::saveToFile() {
+    auto start = chrono::high_resolution_clock::now();
     try {
-        std::ofstream file(filePath);
+        ofstream file(filePath);
         if (!file.is_open()) {
-            std::cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
-            return;
+            cerr << "파일을 저장할 수 없습니다: " << filePath << "\n";
+            return 0.0;
         }
         file << "userName,userEmail\n";
         for (const auto &u : users) {
             file << u.getUserName() << "," << u.getUserEmail() << "\n";
         }
         file.close();
-    } catch (const std::exception &e) {
-        std::cerr << "UserManager::saveToFile 예외 발생: " << e.what() << "\n";
+    } catch (const exception &e) {
+        cerr << "UserManager::saveToFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    double ms = duration / 1000.0;
-    std::cout << "UserManager::saveToFile took " << std::fixed << std::setprecision(3) << ms << " ms" << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
 }
-

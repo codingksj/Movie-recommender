@@ -1,21 +1,23 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "rating.h"
+#include <utility>
+#include "Rating.h"
 #include "MovieManager.h"
 #include "UserManager.h"
 #include "BaseManager.h"
+#include "MovieConstant.h"
 
 class RatingManager : public BaseManager {
 private:
     std::vector<Rating> ratings;
 
 public:
-    void addRating(MovieManager& movieManager, UserManager& userManager);
-    void printRatingsByMovie();
+    std::pair<RatingResult, double> addRating(const std::string& userName, const std::string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager);
+    std::vector<std::string> getRatingsByMovieFormatted(const std::string& movieTitle) const;
     const std::vector<Rating>& getRatings() const { return ratings; }
 
-    void loadFromFile() override;
-    void saveToFile() override;
+    double loadFromFile() override;
+    double saveToFile() override;
     int size() override { return ratings.size(); }
 };

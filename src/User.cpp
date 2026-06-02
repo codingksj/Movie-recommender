@@ -1,6 +1,6 @@
 // 사용자 정보를 담는 User 클래스
 
-#include "user.h"
+#include "User.h"
 #include <iostream>
 
 using std::string;
