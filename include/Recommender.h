@@ -38,6 +38,6 @@ public:
     vector<Rating> getUserRatings(const string& userName) const;
     vector<pair<string, double>> getSimilarUsers(const string& targetUser, int limit) const;
 
-    vector<string> recommend(const string& targetUser, int K, int N);
+    vector<string> recommend(const string& targetUser, int K, int N, const string& genre = "");
     vector<string> recommendByGenre(const string& targetMovieTitle, int N) const;
 };

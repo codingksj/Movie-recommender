@@ -10,6 +10,7 @@
 #include <set>
 #include <iomanip>
 #include <sstream>
+#include <iterator>
 
 using namespace std;
 
@@ -31,12 +32,19 @@ double Recommender::calculateSimilarity(const vector<Rating>& ratingsA,
     double magA = 0.0, magB = 0.0;
     int commonCount = 0;
 
+    // 전체 평가한 이력을 기준으로 사용자 벡터의 크기(Norm) 계산
+    for (const auto& rA : ratingsA) {
+        magA += rA.getUserRating() * rA.getUserRating();
+    }
+    for (const auto& rB : ratingsB) {
+        magB += rB.getUserRating() * rB.getUserRating();
+    }
+
+    // 공통으로 평가한 영화 매칭 (연산자 오버로딩 활용)
     for (const auto& rA : ratingsA) {
         for (const auto& rB : ratingsB) {
-            if (rA.getMovieTitle() == rB.getMovieTitle()) {
+            if (rA == rB) {
                 dotProduct += rA.getUserRating() * rB.getUserRating();
-                magA += rA.getUserRating() * rA.getUserRating();
-                magB += rB.getUserRating() * rB.getUserRating();
                 commonCount++;
             }
         }
@@ -81,6 +89,8 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUs
 map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims, 
                                                     const set<string>& watchedMovies, size_t actualK) {
     map<string, double> movieScores;
+    map<string, double> sumSims; // 영화별 유사도 합계 저장을 위함
+
     for (size_t i = 0; i < actualK; ++i) {
         string neighborName = userSims[i].first;
         double sim = userSims[i].second;
@@ -89,14 +99,23 @@ map<string, double> Recommender::predictMovieScores(const vector<pair<string, do
         for (const auto& r : neighborRatings) {
             if (watchedMovies.find(r.getMovieTitle()) == watchedMovies.end()) {
                 movieScores[r.getMovieTitle()] += sim * r.getUserRating();
+                sumSims[r.getMovieTitle()] += sim;
             }
         }
     }
+
+    // 유사도 가중치 합으로 나누어 정규화 (가중 평균 계산)
+    for (auto& pair : movieScores) {
+        if (sumSims[pair.first] > 0.0) {
+            pair.second /= sumSims[pair.first];
+        }
+    }
+
     return movieScores;
 }
 
 // 대상 사용자와 유사한 취향을 가진 K명의 이웃 데이터를 종합하여 가장 높은 예상 점수를 받은 N개의 영화를 추천하기 위함
-vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
+vector<string> Recommender::recommend(const string& targetUser, int K, int N, const string& genre) {
     vector<Rating> targetRatings = getUserRatings(targetUser);
     if (targetRatings.empty()) { return {}; }
 
@@ -110,7 +129,28 @@ vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
 
     map<string, double> movieScores = predictMovieScores(userSims, watchedMovies, actualK);
 
-    vector<pair<string, double>> candidates(movieScores.begin(), movieScores.end());
+    vector<pair<string, double>> candidates;
+    vector<Movie> genreFilteredMovies;
+    if (!genre.empty()) {
+        genreFilteredMovies = filterByGenre(genre);
+    }
+
+    for (const auto& pair : movieScores) {
+        if (!genre.empty()) {
+            bool genreMatch = false;
+            for (const auto& m : genreFilteredMovies) {
+                if (m.getTitle() == pair.first) {
+                    genreMatch = true;
+                    break;
+                }
+            }
+            if (!genreMatch) {
+                continue;
+            }
+        }
+        candidates.push_back(pair);
+    }
+
     if (candidates.empty()) { return {}; }
 
     sort(candidates.begin(), candidates.end(),
@@ -147,11 +187,13 @@ vector<Movie> Recommender::filterByGenre(const string& genre) const {
     string g = genre;
     transform(g.begin(), g.end(), g.begin(), ::tolower);
 
-    for (const auto& m : movieManager.getMovies()) {
-        string mg = m.getGenre();
-        transform(mg.begin(), mg.end(), mg.begin(), ::tolower);
-        if (mg == g) { result.push_back(m); }
-    }
+    const auto& movies = movieManager.getMovies();
+    copy_if(movies.begin(), movies.end(), back_inserter(result),
+        [&g](const Movie& m) {
+            string mg = m.getGenre();
+            transform(mg.begin(), mg.end(), mg.begin(), ::tolower);
+            return mg == g;
+        });
     return result;
 }
 

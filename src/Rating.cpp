@@ -27,6 +27,11 @@ string  Rating::getMovieTitle()   const { return Base::name; }
 // 유저가 부여한 평점 점수 반환
 double  Rating::getUserRating()   const { return userRating; }
 
+// 동등 비교 연산자 오버로딩 (영화 제목 대소문자 무시 비교)
+bool Rating::operator==(const Rating& other) const {
+    return Base::operator==(other);
+}
+
 // 출력 스트림 연산자 오버로딩
 std::ostream& operator<<(std::ostream& os, const Rating& r) {
     os << "[ 유저 이름 ] " << r.userName << " [ 영화 제목 ] " << r.name << " [ 평점 ] " << r.userRating;

@@ -14,5 +14,6 @@ public:
     string     getUserName()        const;
     string     getMovieTitle()      const;
     double     getUserRating()      const;
+    bool       operator==(const Rating& other) const;
     friend ostream& operator<<(ostream& os, const Rating& r);
 };

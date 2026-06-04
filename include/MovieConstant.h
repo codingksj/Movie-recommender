@@ -77,5 +77,6 @@ enum class RatingResult {
     SUCCESS,
     USER_NOT_FOUND,
     MOVIE_NOT_FOUND,
-    INVALID_SCORE
+    INVALID_SCORE,
+    DUPLICATE_RATING
 };

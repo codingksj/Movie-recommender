@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -160,6 +162,7 @@ Movie* MovieManager::findMovieByTitle(const string &title) {
     }
     return nullptr;
 }
+
 
 // 파일에서 영화 정보를 메모리로 불러오기 위함
 double MovieManager::loadFromFile() {
