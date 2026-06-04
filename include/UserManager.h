@@ -22,5 +22,5 @@ public:
 
     double loadFromFile() override;
     double saveToFile() override;
-    int size() override { return users.size(); }
+    int size() const override { return users.size(); }
 };

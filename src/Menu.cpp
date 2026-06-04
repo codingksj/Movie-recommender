@@ -348,3 +348,61 @@ void Menu::showSaveSummary(int movieCount, int userCount, int ratingCount) {
     cout << "  평점 데이터     : " << ratingCount << "건 저장 완료\n";
     cout << "========================================\n";
 }
+
+// 통계 메뉴 핸들러
+void Menu::handleStatisticsMenu(Statistics& statistics) {
+    while (true) {
+        showSubMenu(MovieConstants::TITLE_STATISTICS, MovieConstants::OPTIONS_STATISTICS);
+        int subChoice = getChoice();
+        if (subChoice == 0) { break; }
+
+        if (subChoice == 1) { promptOverallStatistics(statistics); }
+        else if (subChoice == 2) { promptTopMoviesByRating(statistics); }
+        else if (subChoice == 3) { promptTopMoviesByRatingCount(statistics); }
+        else if (subChoice == 4) { promptStatisticsByGenre(statistics); }
+        else if (subChoice == 5) { promptStatisticsByYear(statistics); }
+        else if (subChoice == 6) { promptTopUsersByRatingCount(statistics); }
+        else if (subChoice == 7) { promptUserStatistics(statistics); }
+        else { cout << "잘못된 선택입니다.\n"; }
+    }
+}
+
+void Menu::promptOverallStatistics(Statistics& statistics) {
+    auto stats = statistics.getOverallStatistics();
+    showDynamicResult("전체 통계", stats);
+}
+
+void Menu::promptTopMoviesByRating(Statistics& statistics) {
+    auto topMovies = statistics.getTopMoviesByRating(10);
+    showDynamicResult("평점 높은 순서 (상위 10)", formatList(topMovies));
+}
+
+void Menu::promptTopMoviesByRatingCount(Statistics& statistics) {
+    auto topMovies = statistics.getTopMoviesByRatingCount(10);
+    showDynamicResult("평가 많은 순서 (상위 10)", formatList(topMovies));
+}
+
+void Menu::promptStatisticsByGenre(Statistics& statistics) {
+    auto genreStats = statistics.getStatisticsByGenre();
+    showDynamicResult("장르별 평균 평점", genreStats);
+}
+
+void Menu::promptStatisticsByYear(Statistics& statistics) {
+    auto yearStats = statistics.getStatisticsByYear();
+    showDynamicResult("연도별 평균 평점", yearStats);
+}
+
+void Menu::promptTopUsersByRatingCount(Statistics& statistics) {
+    auto topUsers = statistics.getTopUsersByRatingCount(10);
+    showDynamicResult("사용자별 평가 수 (상위 10)", formatList(topUsers));
+}
+
+void Menu::promptUserStatistics(Statistics& statistics) {
+    string userName;
+    cout << "사용자 이름 입력: ";
+    cin.ignore();
+    getline(cin, userName);
+    
+    auto userStats = statistics.getUserStatistics(userName);
+    showDynamicResult(userName + "님의 통계", userStats);
+}

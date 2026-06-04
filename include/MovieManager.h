@@ -26,5 +26,5 @@ public:
 
     double loadFromFile() override;
     double saveToFile() override;
-    int size() override { return movies.size(); }
+    int size() const override { return movies.size(); }
 };

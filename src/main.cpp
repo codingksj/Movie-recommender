@@ -4,6 +4,7 @@
 #include "UserManager.h"
 #include "RatingManager.h"
 #include "Recommender.h"
+#include "Statistics.h"
 #include "Menu.h"
 #include <iostream>
 #include <iomanip>
@@ -16,6 +17,7 @@ int main() {
     UserManager userManager;
     RatingManager ratingManager;
     Recommender recommender(movieManager, ratingManager, userManager);
+    Statistics statistics(movieManager, ratingManager, userManager);
 
     cout << std::fixed << std::setprecision(1);
 
@@ -63,6 +65,9 @@ int main() {
                 break;
             case 4:
                 Menu::handleRecommendationMenu(recommender);
+                break;
+            case 5:
+                Menu::handleStatisticsMenu(statistics);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";

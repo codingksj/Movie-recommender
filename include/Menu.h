@@ -7,6 +7,7 @@
 #include "UserManager.h"
 #include "RatingManager.h"
 #include "Recommender.h"
+#include "Statistics.h"
 
 using std::string;
 using std::vector;
@@ -23,6 +24,7 @@ public:
     static void handleUserMenu(UserManager& userManager);
     static void handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager);
     static void handleRecommendationMenu(Recommender& recommender);
+    static void handleStatisticsMenu(Statistics& statistics);
 
     static void showLoadSummary(int movieCount, int userCount, int ratingCount);
     static void showSaveSummary(int movieCount, int userCount, int ratingCount);
@@ -41,4 +43,12 @@ private:
     static void promptSimilarUsers(Recommender& recommender);
     static void promptRecommendByUser(Recommender& recommender);
     static void promptRecommendByGenre(Recommender& recommender);
+
+    static void promptOverallStatistics(Statistics& statistics);
+    static void promptTopMoviesByRating(Statistics& statistics);
+    static void promptTopMoviesByRatingCount(Statistics& statistics);
+    static void promptStatisticsByGenre(Statistics& statistics);
+    static void promptStatisticsByYear(Statistics& statistics);
+    static void promptTopUsersByRatingCount(Statistics& statistics);
+    static void promptUserStatistics(Statistics& statistics);
 };

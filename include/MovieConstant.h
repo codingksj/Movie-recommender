@@ -40,10 +40,11 @@ namespace MovieConstants {
     inline const string TITLE_USER = "사용자 관리";
     inline const string TITLE_RATING = "평점 관리";
     inline const string TITLE_RECOMMEND = "추천 서비스";
+    inline const string TITLE_STATISTICS = "통계 서비스";
 
     // 메뉴 선택 옵션 리스트
     inline const vector<string> OPTIONS_MAIN = {
-        "영화 관리", "사용자 관리", "평점 관리", "추천 서비스"
+        "영화 관리", "사용자 관리", "평점 관리", "추천 서비스", "통계 서비스"
     };
     inline const vector<string> OPTIONS_MOVIE = {
         "영화 추가", "제목으로 검색", "전체 목록 (정렬 포함)"
@@ -56,6 +57,10 @@ namespace MovieConstants {
     };
     inline const vector<string> OPTIONS_RECOMMEND = {
         "유사 사용자 찾기", "영화 추천 받기 (사용자 기준)", "영화 추천 받기 (장르 유사도 기준)"
+    };
+    inline const vector<string> OPTIONS_STATISTICS = {
+        "전체 통계", "평점 순위 (상위 10)", "평가 수 순위 (상위 10)",
+        "장르별 통계", "연도별 통계", "사용자별 평가 순위", "사용자 상세 정보"
     };
     inline const vector<string> OPTIONS_SORT = {
         "평점 높은순", "평점 많은순", "제목 사전순", "장르 사전순", "개봉연도순 (최신순)"

@@ -15,5 +15,5 @@ public:
 
     virtual double loadFromFile() = 0;
     virtual double saveToFile() = 0;
-    virtual int size() = 0;
+    virtual int size() const = 0;
 };
