@@ -140,6 +140,21 @@ double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) c
     return (g1 == g2) ? 1.0 : 0.0;
 }
 
+// 장르 문자열(대소문자 무시)이 정확히 일치하는 영화들만 반환하는 헬퍼
+vector<Movie> Recommender::filterByGenre(const string& genre) const {
+    vector<Movie> result;
+    if (genre.empty()) return result;
+    string g = genre;
+    transform(g.begin(), g.end(), g.begin(), ::tolower);
+
+    for (const auto& m : movieManager.getMovies()) {
+        string mg = m.getGenre();
+        transform(mg.begin(), mg.end(), mg.begin(), ::tolower);
+        if (mg == g) result.push_back(m);
+    }
+    return result;
+}
+
 // 사용자가 관심을 가지는 특정 영화와 유사한 분위기/내용(장르)을 가진 영화 목록을 제공하기 위함
 vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int N) const {
     const auto& movies = movieManager.getMovies();
