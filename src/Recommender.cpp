@@ -157,9 +157,9 @@ vector<Movie> Recommender::filterByGenre(const string& genre) const {
 
 // 사용자가 관심을 가지는 특정 영화와 유사한 분위기/내용(장르)을 가진 영화 목록을 제공하기 위함
 vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int N) const {
-    const auto& movies = movieManager.getMovies();
+    const auto& allMovies = movieManager.getMovies();
     const Movie* targetMovie = nullptr;
-    for (const auto& m : movies) {
+    for (const auto& m : allMovies) {
         if (m == targetMovieTitle) {
             targetMovie = &m;
             break;
@@ -168,8 +168,10 @@ vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int
 
     if (!targetMovie) return {};
 
+    // Use filterByGenre to narrow candidates to the same genre (faster and clearer)
+    vector<Movie> sameGenre = filterByGenre(targetMovie->getGenre());
     vector<pair<Movie, double>> candidates;
-    for (const auto& m : movies) {
+    for (const auto& m : sameGenre) {
         if (m == targetMovieTitle) continue;
         double sim = calculateGenreSimilarity(*targetMovie, m);
         candidates.push_back({m, sim});
