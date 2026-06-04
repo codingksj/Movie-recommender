@@ -85,12 +85,12 @@ void Menu::handleMovieMenu(MovieManager& movieManager) {
     while (true) {
         showSubMenu(MovieConstants::TITLE_MOVIE, MovieConstants::OPTIONS_MOVIE);
         int subChoice = getChoice();
-        if (subChoice == 0) break;
-        
-        if (subChoice == 1) promptAddMovie(movieManager);
-        else if (subChoice == 2) promptSearchMovie(movieManager);
-        else if (subChoice == 3) promptPrintMovies(movieManager);
-        else cout << "잘못된 선택입니다.\n";
+        if (subChoice == 0) { break; }
+
+        if (subChoice == 1) { promptAddMovie(movieManager); }
+        else if (subChoice == 2) { promptSearchMovie(movieManager); }
+        else if (subChoice == 3) { promptPrintMovies(movieManager); }
+        else { cout << "잘못된 선택입니다.\n"; }
     }
 }
 
@@ -99,7 +99,7 @@ void Menu::promptAddMovie(MovieManager& movieManager) {
     int year;
     cout << "영화 제목: ";
     cin.ignore();
-    if (!getline(cin, title) || title.empty()) return;
+    if (!getline(cin, title) || title.empty()) { return; }
     
     cout << "장르: ";
     getline(cin, genre);
@@ -125,7 +125,7 @@ void Menu::promptSearchMovie(MovieManager& movieManager) {
     string query;
     cout << "검색할 영화 제목: ";
     cin.ignore();
-    if (!getline(cin, query) || query.empty()) return;
+    if (!getline(cin, query) || query.empty()) { return; }
     
     string outQuery;
     auto res = movieManager.searchByTitleFormatted(query, outQuery);
@@ -145,7 +145,7 @@ void Menu::promptPrintMovies(MovieManager& movieManager) {
     }
     showSubMenu("정렬 기준 선택", MovieConstants::OPTIONS_SORT);
     int sortChoice = getChoice();
-    if (sortChoice <= 0 || sortChoice > 5) sortChoice = 3; // 기본값: 제목순
+    if (sortChoice <= 0 || sortChoice > 5) { sortChoice = 3; } // 기본값: 제목순
     
     string sortName;
     auto res = movieManager.getSortedMoviesFormatted(sortChoice, sortName);
@@ -158,11 +158,11 @@ void Menu::handleUserMenu(UserManager& userManager) {
     while (true) {
         showSubMenu(MovieConstants::TITLE_USER, MovieConstants::OPTIONS_USER);
         int subChoice = getChoice();
-        if (subChoice == 0) break;
-        
-        if (subChoice == 1) promptAddUser(userManager);
-        else if (subChoice == 2) promptPrintUsers(userManager);
-        else cout << "잘못된 선택입니다.\n";
+        if (subChoice == 0) { break; }
+
+        if (subChoice == 1) { promptAddUser(userManager); }
+        else if (subChoice == 2) { promptPrintUsers(userManager); }
+        else { cout << "잘못된 선택입니다.\n"; }
     }
 }
 
@@ -170,10 +170,10 @@ void Menu::promptAddUser(UserManager& userManager) {
     string name, email;
     cout << "사용자 이름: ";
     cin.ignore();
-    if (!getline(cin, name) || name.empty()) return;
+    if (!getline(cin, name) || name.empty()) { return; }
     
     cout << "사용자 이메일: ";
-    if (!getline(cin, email) || email.empty()) return;
+    if (!getline(cin, email) || email.empty()) { return; }
     
     auto res = userManager.addUser(name, email);
     if (res.first == UserResult::DUPLICATE_USER) {
@@ -198,11 +198,11 @@ void Menu::handleRatingMenu(RatingManager& ratingManager, MovieManager& movieMan
     while (true) {
         showSubMenu(MovieConstants::TITLE_RATING, MovieConstants::OPTIONS_RATING);
         int subChoice = getChoice();
-        if (subChoice == 0) break;
-        
-        if (subChoice == 1) promptAddRating(ratingManager, movieManager, userManager);
-        else if (subChoice == 2) promptPrintRatings(ratingManager);
-        else cout << "잘못된 선택입니다.\n";
+        if (subChoice == 0) { break; }
+
+        if (subChoice == 1) { promptAddRating(ratingManager, movieManager, userManager); }
+        else if (subChoice == 2) { promptPrintRatings(ratingManager); }
+        else { cout << "잘못된 선택입니다.\n"; }
     }
 }
 
@@ -212,10 +212,10 @@ void Menu::promptAddRating(RatingManager& ratingManager, MovieManager& movieMana
     
     cout << "사용자 이름: ";
     cin.ignore();
-    if (!getline(cin, userName) || userName.empty()) return;
+    if (!getline(cin, userName) || userName.empty()) { return; }
     
     cout << "영화 제목: ";
-    if (!getline(cin, movieTitle) || movieTitle.empty()) return;
+    if (!getline(cin, movieTitle) || movieTitle.empty()) { return; }
     
     cout << "평점 (" << MovieConstants::MIN_RATE << " ~ " << MovieConstants::MAX_RATE << "): ";
     if (!(cin >> score)) {
@@ -256,12 +256,12 @@ void Menu::handleRecommendationMenu(Recommender& recommender) {
     while (true) {
         showSubMenu(MovieConstants::TITLE_RECOMMEND, MovieConstants::OPTIONS_RECOMMEND);
         int subChoice = getChoice();
-        if (subChoice == 0) break;
-        
-        if (subChoice == 1) promptSimilarUsers(recommender);
-        else if (subChoice == 2) promptRecommendByUser(recommender);
-        else if (subChoice == 3) promptRecommendByGenre(recommender);
-        else cout << "잘못된 선택입니다.\n";
+        if (subChoice == 0) { break; }
+
+        if (subChoice == 1) { promptSimilarUsers(recommender); }
+        else if (subChoice == 2) { promptRecommendByUser(recommender); }
+        else if (subChoice == 3) { promptRecommendByGenre(recommender); }
+        else { cout << "잘못된 선택입니다.\n"; }
     }
 }
 

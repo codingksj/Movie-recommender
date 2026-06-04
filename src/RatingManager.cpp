@@ -68,7 +68,7 @@ double RatingManager::loadFromFile() {
         getline(file, line);
         int count = 0;
         while (getline(file, line)) {
-            if (line.empty()) continue;
+            if (line.empty()) { continue; }
             stringstream ss(line);
             string name, title, ratingStr;
             getline(ss, name, ',');

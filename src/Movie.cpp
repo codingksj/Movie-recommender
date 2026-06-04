@@ -74,8 +74,8 @@ bool Movie::operator==(const string& otherName) const {
     }
     string titleLower = Base::name;
     string queryLower = otherName;
-    for (char &c : titleLower) c = tolower(c);
-    for (char &c : queryLower) c = tolower(c);
+    for (char &c : titleLower) { c = tolower(c); }
+    for (char &c : queryLower) { c = tolower(c); }
     return titleLower.find(queryLower) != string::npos;
 }
 

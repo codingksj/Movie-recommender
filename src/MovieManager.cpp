@@ -32,7 +32,7 @@ pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, 
 // 주어진 쿼리로 영화 제목을 검색하고 포맷팅된 문자열 목록을 반환함
 pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& query, string& outQuery) const {
     string queryLower = query;
-    for (char &c : queryLower) c = tolower(c);
+    for (char &c : queryLower) { c = tolower(c); }
     
     auto searchStart = chrono::high_resolution_clock::now();
     vector<pair<Movie, string>> matches;
@@ -40,7 +40,7 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
     
     for (const auto &m : movies) {
         string titleLower = m.getTitle();
-        for (char &c : titleLower) c = tolower(c);
+        for (char &c : titleLower) { c = tolower(c); }
         
         size_t pos = titleLower.find(queryLower);
         if (pos != string::npos) {
@@ -50,8 +50,8 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
             string right = originalTitle.substr(pos + query.length());
             string highlightedTitle = leftPart + "[" + mid + "]" + right;
             matches.push_back({m, highlightedTitle});
-            if (highlightedTitle.length() > maxTitleLen) maxTitleLen = highlightedTitle.length();
-            if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
+            if (highlightedTitle.length() > maxTitleLen) { maxTitleLen = highlightedTitle.length(); }
+            if (m.getGenre().length() > maxGenreLen) { maxGenreLen = m.getGenre().length(); }
         }
     }
     auto searchEnd = chrono::high_resolution_clock::now();
@@ -92,28 +92,28 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
         case MovieConstants::SORT_RATE:
             outSortName = MovieConstants::OPTIONS_SORT[0];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
-                if (a.getAverageRating() != b.getAverageRating()) return a.getAverageRating() > b.getAverageRating();
+                if (a.getAverageRating() != b.getAverageRating()) { return a.getAverageRating() > b.getAverageRating(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
         case MovieConstants::SORT_CNT:
             outSortName = MovieConstants::OPTIONS_SORT[1];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
-                if (a.getRatingCount() != b.getRatingCount()) return a.getRatingCount() > b.getRatingCount();
+                if (a.getRatingCount() != b.getRatingCount()) { return a.getRatingCount() > b.getRatingCount(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
         case MovieConstants::SORT_GENRE:
             outSortName = MovieConstants::OPTIONS_SORT[3];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
-                if (a.getGenre() != b.getGenre()) return a.getGenre() < b.getGenre();
+                if (a.getGenre() != b.getGenre()) { return a.getGenre() < b.getGenre(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
         case MovieConstants::SORT_YEAR:
             outSortName = MovieConstants::OPTIONS_SORT[4];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
-                if (a.getReleaseYear() != b.getReleaseYear()) return a.getReleaseYear() > b.getReleaseYear();
+                if (a.getReleaseYear() != b.getReleaseYear()) { return a.getReleaseYear() > b.getReleaseYear(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
@@ -127,8 +127,8 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
     
     size_t maxTitleLen = 0, maxGenreLen = 0;
     for (const auto &m : sortedMovies) {
-        if (m.getTitle().length() > maxTitleLen) maxTitleLen = m.getTitle().length();
-        if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
+        if (m.getTitle().length() > maxTitleLen) { maxTitleLen = m.getTitle().length(); }
+        if (m.getGenre().length() > maxGenreLen) { maxGenreLen = m.getGenre().length(); }
     }
     
     for (const auto &m : sortedMovies) {
@@ -150,10 +150,10 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
 // 제목으로 특정 영화 포인터 검색 (외부에서 영화 유무 확인 등을 위함)
 Movie* MovieManager::findMovieByTitle(const string &title) {
     string titleLower = title;
-    for (char &c : titleLower) c = tolower(c);
+    for (char &c : titleLower) { c = tolower(c); }
     for (auto &m : movies) {
         string movieTitleLower = m.getTitle();
-        for (char &c : movieTitleLower) c = tolower(c);
+        for (char &c : movieTitleLower) { c = tolower(c); }
         if (movieTitleLower == titleLower) {
             return &m;
         }
@@ -173,7 +173,7 @@ double MovieManager::loadFromFile() {
         string line;
         getline(file, line);
         while (getline(file, line)) {
-            if (line.empty()) continue;
+            if (line.empty()) { continue; }
             stringstream ss(line);
             string title, genre, yearStr, totalRatingStr, ratingCountStr;
             getline(ss, title, ',');

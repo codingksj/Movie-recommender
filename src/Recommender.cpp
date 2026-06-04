@@ -52,12 +52,12 @@ double Recommender::calculateSimilarity(const vector<Rating>& ratingsA,
 // 대상 사용자와 취향이 비슷한 이웃 사용자들을 찾아내어 협업 필터링의 기초 데이터를 구성하기 위함
 vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUser, int limit) const {
     vector<Rating> targetRatings = getUserRatings(targetUser);
-    if (targetRatings.empty()) return {};
+    if (targetRatings.empty()) { return {}; }
 
     vector<pair<string, double>> similarities;
     for (const auto& user : userManager.getUsers()) {
-        if (user.getUserName() == targetUser) continue;
-        
+        if (user.getUserName() == targetUser) { continue; }
+
         vector<Rating> otherRatings = getUserRatings(user.getUserName());
         double sim = calculateSimilarity(targetRatings, otherRatings);
         if (sim > 0.0) {
@@ -67,7 +67,7 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUs
 
     sort(similarities.begin(), similarities.end(),
          [](const pair<string, double>& a, const pair<string, double>& b) {
-             if (a.second == b.second) return a.first < b.first;
+             if (a.second == b.second) { return a.first < b.first; }
              return a.second > b.second;
          });
 
@@ -98,24 +98,24 @@ map<string, double> Recommender::predictMovieScores(const vector<pair<string, do
 // 대상 사용자와 유사한 취향을 가진 K명의 이웃 데이터를 종합하여 가장 높은 예상 점수를 받은 N개의 영화를 추천하기 위함
 vector<string> Recommender::recommend(const string& targetUser, int K, int N) {
     vector<Rating> targetRatings = getUserRatings(targetUser);
-    if (targetRatings.empty()) return {};
+    if (targetRatings.empty()) { return {}; }
 
     vector<pair<string, double>> userSims = getSimilarUsers(targetUser, 0);
-    if (userSims.empty()) return {};
+    if (userSims.empty()) { return {}; }
 
     size_t actualK = min((size_t)K, userSims.size());
 
     set<string> watchedMovies;
-    for (const auto& r : targetRatings) watchedMovies.insert(r.getMovieTitle());
+    for (const auto& r : targetRatings) { watchedMovies.insert(r.getMovieTitle()); }
 
     map<string, double> movieScores = predictMovieScores(userSims, watchedMovies, actualK);
 
     vector<pair<string, double>> candidates(movieScores.begin(), movieScores.end());
-    if (candidates.empty()) return {};
+    if (candidates.empty()) { return {}; }
 
     sort(candidates.begin(), candidates.end(),
          [](const pair<string, double>& a, const pair<string, double>& b) {
-             if (a.second == b.second) return a.first < b.first;
+             if (a.second == b.second) { return a.first < b.first; }
              return a.second > b.second;
          });
 
@@ -143,14 +143,14 @@ double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) c
 // 장르 문자열(대소문자 무시)이 정확히 일치하는 영화들만 반환하는 헬퍼
 vector<Movie> Recommender::filterByGenre(const string& genre) const {
     vector<Movie> result;
-    if (genre.empty()) return result;
+    if (genre.empty()) { return result; }
     string g = genre;
     transform(g.begin(), g.end(), g.begin(), ::tolower);
 
     for (const auto& m : movieManager.getMovies()) {
         string mg = m.getGenre();
         transform(mg.begin(), mg.end(), mg.begin(), ::tolower);
-        if (mg == g) result.push_back(m);
+        if (mg == g) { result.push_back(m); }
     }
     return result;
 }
@@ -166,20 +166,20 @@ vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int
         }
     }
 
-    if (!targetMovie) return {};
+    if (!targetMovie) { return {}; }
 
     // Use filterByGenre to narrow candidates to the same genre (faster and clearer)
     vector<Movie> sameGenre = filterByGenre(targetMovie->getGenre());
     vector<pair<Movie, double>> candidates;
     for (const auto& m : sameGenre) {
-        if (m == targetMovieTitle) continue;
+        if (m == targetMovieTitle) { continue; }
         double sim = calculateGenreSimilarity(*targetMovie, m);
         candidates.push_back({m, sim});
     }
 
     sort(candidates.begin(), candidates.end(), [](const pair<Movie, double>& a, const pair<Movie, double>& b) {
-        if (a.second != b.second) return a.second > b.second;
-        if (a.first.getAverageRating() != b.first.getAverageRating()) return a.first.getAverageRating() > b.first.getAverageRating();
+        if (a.second != b.second) { return a.second > b.second; }
+        if (a.first.getAverageRating() != b.first.getAverageRating()) { return a.first.getAverageRating() > b.first.getAverageRating(); }
         return a.first.getTitle() < b.first.getTitle();
     });
 
@@ -191,7 +191,7 @@ vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int
             ss << pair.first.getTitle() << " (장르: " << pair.first.getGenre() 
                << ", 평점: " << fixed << setprecision(1) << pair.first.getAverageRating() << ")";
             result.push_back(ss.str());
-            if (++count >= N) break;
+            if (++count >= N) { break; }
         }
     }
     return result;
