@@ -60,9 +60,23 @@ bool Movie::addRating(double r) {
     return true;
 }
 
-// 동등 비교 연산자 오버로딩 (제목 기준 - 대소문자 무시)
+// 동등 비교 연산자 오버로딩 (제목 기준 - 대소문자 무시, 장르 및 개봉 연도도 동일해야 함)
 bool Movie::operator==(const Movie& other) const {
-    return Base::operator==(other);
+    return Base::operator==(other)
+        && genre == other.genre
+        && releaseYear == other.releaseYear;
+}
+
+// 동등 비교 연산자 오버로딩 (부분 일치, 대소문자 무시)
+bool Movie::operator==(const string& otherName) const {
+    if (otherName.empty()) {
+        return false;
+    }
+    string titleLower = Base::name;
+    string queryLower = otherName;
+    for (char &c : titleLower) c = tolower(c);
+    for (char &c : queryLower) c = tolower(c);
+    return titleLower.find(queryLower) != string::npos;
 }
 
 // 출력 스트림 연산자 오버로딩

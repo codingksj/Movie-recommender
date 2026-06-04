@@ -14,7 +14,7 @@ using namespace std;
 pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, const string& genre) {
     auto start = chrono::high_resolution_clock::now();
     try {
-        Movie target(title);
+        Movie target(title, year, genre);
         for (const auto& m : movies) {
             if (m == target) {
                 auto end = chrono::high_resolution_clock::now();
@@ -45,10 +45,10 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
         size_t pos = titleLower.find(queryLower);
         if (pos != string::npos) {
             string originalTitle = m.getTitle();
-            string left = originalTitle.substr(0, pos);
+            string leftPart = originalTitle.substr(0, pos);
             string mid = originalTitle.substr(pos, query.length());
             string right = originalTitle.substr(pos + query.length());
-            string highlightedTitle = left + "[" + mid + "]" + right;
+            string highlightedTitle = leftPart + "[" + mid + "]" + right;
             matches.push_back({m, highlightedTitle});
             if (highlightedTitle.length() > maxTitleLen) maxTitleLen = highlightedTitle.length();
             if (m.getGenre().length() > maxGenreLen) maxGenreLen = m.getGenre().length();
@@ -149,9 +149,12 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
 
 // 제목으로 특정 영화 포인터 검색 (외부에서 영화 유무 확인 등을 위함)
 Movie* MovieManager::findMovieByTitle(const string &title) {
-    Movie target(title);
+    string titleLower = title;
+    for (char &c : titleLower) c = tolower(c);
     for (auto &m : movies) {
-        if (m == target) {
+        string movieTitleLower = m.getTitle();
+        for (char &c : movieTitleLower) c = tolower(c);
+        if (movieTitleLower == titleLower) {
             return &m;
         }
     }

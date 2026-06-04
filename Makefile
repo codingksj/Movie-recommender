@@ -24,7 +24,7 @@ $(OBJ_DIR)/MovieManager.o: $(SRC_DIR)/MovieManager.cpp $(INC_DIR)/MovieManager.h
 $(OBJ_DIR)/UserManager.o: $(SRC_DIR)/UserManager.cpp $(INC_DIR)/UserManager.h $(INC_DIR)/User.h $(INC_DIR)/BaseManager.h $(INC_DIR)/Menu.h
 $(OBJ_DIR)/RatingManager.o: $(SRC_DIR)/RatingManager.cpp $(INC_DIR)/RatingManager.h $(INC_DIR)/Rating.h $(INC_DIR)/MovieManager.h $(INC_DIR)/BaseManager.h $(INC_DIR)/Menu.h
 $(OBJ_DIR)/Recommender.o: $(SRC_DIR)/Recommender.cpp $(INC_DIR)/Recommender.h $(INC_DIR)/MovieManager.h $(INC_DIR)/UserManager.h $(INC_DIR)/RatingManager.h
-$(OBJ_DIR)/Menu.o: $(SRC_DIR)/Menu.cpp $(INC_DIR)/Menu.h $(INC_DIR)/MovieManager.h $(INC_DIR)/UserManager.h $(INC_DIR)/RatingManager.h $(INC_DIR)/Recommender.h $(INC_DIR)/movieConstant.h
+$(OBJ_DIR)/Menu.o: $(SRC_DIR)/Menu.cpp $(INC_DIR)/Menu.h $(INC_DIR)/MovieManager.h $(INC_DIR)/UserManager.h $(INC_DIR)/RatingManager.h $(INC_DIR)/Recommender.h $(INC_DIR)/MovieConstant.h
 
 .PHONY: clean run valgrind
 clean:

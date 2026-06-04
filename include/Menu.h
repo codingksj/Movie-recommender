@@ -8,12 +8,15 @@
 #include "RatingManager.h"
 #include "Recommender.h"
 
+using std::string;
+using std::vector;
+
 class Menu {
 public:
-    static void showHeader(const std::string& title);
+    static void showHeader(const string& title);
     static void showMainMenu();
-    static void showSubMenu(const std::string& title, const std::vector<std::string>& options);
-    static void showDynamicResult(const std::string& title, const std::vector<std::string>& lines);
+    static void showSubMenu(const string& title, const vector<string>& options);
+    static void showDynamicResult(const string& title, const vector<string>& lines);
     static int getChoice();
 
     static void handleMovieMenu(MovieManager& movieManager);

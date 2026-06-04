@@ -8,17 +8,21 @@
 #include "BaseManager.h"
 #include "MovieConstant.h"
 
+using std::vector;
+using std::string;
+using std::pair;
+
 class MovieManager : public BaseManager {
 private:
-    std::vector<Movie> movies;
+    vector<Movie> movies;
 
 public:
-    std::pair<MovieResult, double> addMovie(const std::string& title, int year, const std::string& genre);
-    std::pair<std::vector<std::string>, double> searchByTitleFormatted(const std::string& query, std::string& outQuery) const;
-    std::pair<std::vector<std::string>, double> getSortedMoviesFormatted(int sortChoice, std::string& outSortName) const;
+    pair<MovieResult, double> addMovie(const string& title, int year, const string& genre);
+    pair<vector<string>, double> searchByTitleFormatted(const string& query, string& outQuery) const;
+    pair<vector<string>, double> getSortedMoviesFormatted(int sortChoice, string& outSortName) const;
     
-    Movie* findMovieByTitle(const std::string& title);
-    const std::vector<Movie>& getMovies() const { return movies; }
+    Movie* findMovieByTitle(const string& title);
+    const vector<Movie>& getMovies() const { return movies; }
 
     double loadFromFile() override;
     double saveToFile() override;

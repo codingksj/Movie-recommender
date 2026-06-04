@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.h"
 
+using std::ostream;
+
 class User : public Base {
 private:
     string      userEmail;
@@ -13,5 +15,5 @@ public:
 
     bool operator==(const User& other) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const User& u);
+    friend ostream& operator<<(ostream& os, const User& u);
 };

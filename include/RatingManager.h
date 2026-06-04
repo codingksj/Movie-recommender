@@ -8,14 +8,18 @@
 #include "BaseManager.h"
 #include "MovieConstant.h"
 
+using std::vector;
+using std::string;
+using std::pair;
+
 class RatingManager : public BaseManager {
 private:
-    std::vector<Rating> ratings;
+    vector<Rating> ratings;
 
 public:
-    std::pair<RatingResult, double> addRating(const std::string& userName, const std::string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager);
-    std::vector<std::string> getRatingsByMovieFormatted(const std::string& movieTitle) const;
-    const std::vector<Rating>& getRatings() const { return ratings; }
+    pair<RatingResult, double> addRating(const string& userName, const string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager);
+    vector<string> getRatingsByMovieFormatted(const string& movieTitle) const;
+    const vector<Rating>& getRatings() const { return ratings; }
 
     double loadFromFile() override;
     double saveToFile() override;

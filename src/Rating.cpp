@@ -1,7 +1,7 @@
 // 사용자별 영화 평점을 나타내는 Rating 클래스
 
 #include "Rating.h"
-#include "movieConstant.h"
+#include "MovieConstant.h"
 #include <iostream>
 
 using std::string;

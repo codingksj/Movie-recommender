@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.h"
 
+using std::ostream;
+
 class Movie : public Base {
 private:
     string      genre;
@@ -22,6 +24,7 @@ public:
 
     bool operator>(const Movie& other) const;
     bool operator==(const Movie& other) const;
+    bool operator==(const string& otherName) const override;
 
-    friend std::ostream& operator<<(std::ostream& os, const Movie& m);
+    friend ostream& operator<<(ostream& os, const Movie& m);
 };

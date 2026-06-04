@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.h"
 
+using std::ostream;
+
 class Rating : public Base {
 private:
     string  userName;
@@ -12,5 +14,5 @@ public:
     string     getUserName()        const;
     string     getMovieTitle()      const;
     double     getUserRating()      const;
-    friend std::ostream& operator<<(std::ostream& os, const Rating& r);
+    friend ostream& operator<<(ostream& os, const Rating& r);
 };
