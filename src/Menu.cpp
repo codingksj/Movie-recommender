@@ -231,6 +231,8 @@ void Menu::promptAddRating(RatingManager& ratingManager, MovieManager& movieMana
         cout << "[" << movieTitle << "] 제목의 영화를 찾을 수 없습니다.\n";
     } else if (res.first == RatingResult::INVALID_SCORE) {
         cout << "올바른 범위의 평점을 입력해주세요.\n";
+    } else if (res.first == RatingResult::DUPLICATE_RATING) {
+        cout << "이미 등록된 평점입니다. [사용자: " << userName << ", 영화: " << movieTitle << "]\n";
     } else {
         cout << "평점이 등록되었습니다. [사용자: " << userName << ", 영화: " << movieTitle << ", 평점: " << score << "]\n";
     }
@@ -268,7 +270,8 @@ void Menu::handleRecommendationMenu(Recommender& recommender) {
 void Menu::promptSimilarUsers(Recommender& recommender) {
     string targetUser;
     cout << "유사 사용자를 찾을 사용자 이름 입력: ";
-    cin >> targetUser;
+    cin.ignore();
+    getline(cin, targetUser);
     
     if (!recommender.getUserManager().findUserByName(targetUser)) {
         cout << "존재하지 않는 사용자입니다.\n";
@@ -299,7 +302,8 @@ void Menu::promptSimilarUsers(Recommender& recommender) {
 void Menu::promptRecommendByUser(Recommender& recommender) {
     string targetUser;
     cout << "추천을 받을 사용자 이름 입력: ";
-    cin >> targetUser;
+    cin.ignore();
+    getline(cin, targetUser);
     
     if (!recommender.getUserManager().findUserByName(targetUser)) {
         cout << "존재하지 않는 사용자입니다.\n";

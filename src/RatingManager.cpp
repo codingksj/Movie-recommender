@@ -29,12 +29,21 @@ pair<RatingResult, double> RatingManager::addRating(const string& userName, cons
         return {RatingResult::INVALID_SCORE, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
     }
 
+    // 중복 평가 체크
+    for (const auto& r : ratings) {
+        if (r.getUserName() == userName && r.getMovieTitle() == movie->getTitle()) {
+            auto end = chrono::high_resolution_clock::now();
+            return {RatingResult::DUPLICATE_RATING, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+        }
+    }
+
     if (!movie->addRating(score)) {
         auto end = chrono::high_resolution_clock::now();
         return {RatingResult::INVALID_SCORE, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
     }
 
-    ratings.push_back(Rating(userName, movieTitle, score));
+    // 표준화된 제목으로 Rating 저장
+    ratings.push_back(Rating(userName, movie->getTitle(), score));
     
     auto end = chrono::high_resolution_clock::now();
     double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
