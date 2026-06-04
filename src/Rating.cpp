@@ -32,6 +32,11 @@ bool Rating::operator==(const Rating& other) const {
     return Base::operator==(other);
 }
 
+// 문자열과의 동등 비교 연산자 오버로딩 (영화 제목 대소문자 무시 비교)
+bool Rating::operator==(const string& otherMovieTitle) const {
+    return Base::operator==(otherMovieTitle);
+}
+
 // 출력 스트림 연산자 오버로딩
 std::ostream& operator<<(std::ostream& os, const Rating& r) {
     os << "[ 유저 이름 ] " << r.userName << " [ 영화 제목 ] " << r.name << " [ 평점 ] " << r.userRating;
