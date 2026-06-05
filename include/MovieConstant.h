@@ -23,47 +23,101 @@ namespace MovieConstants {
     constexpr int COLLAB_N = 5;
     constexpr int GENRE_N = 5;
 
+    // Synthetic dataset generator defaults and limits
+    constexpr size_t MAX_DATASET_COUNT = 1000000; // maximum allowed rows for generated files
+    constexpr int DATA_MIN_YEAR = 1888; // earliest valid movie year
+    constexpr int DATA_MAX_YEAR = 2026; // latest valid movie year
+    constexpr int DEFAULT_SAMPLE_MOVIES = 100;
+    constexpr int DEFAULT_SAMPLE_USERS = 50;
+    constexpr int DEFAULT_SAMPLE_RATINGS = 200;
+
     // 메뉴 출력 포맷팅 설정
     constexpr size_t MIN_WIDTH = 40;
     constexpr size_t TITLE_PAD = 6;
+    constexpr size_t MAX_STR_LEN = 50;
 
-    // 정렬 선택 번호 상수
+// New constants for menu behavior
+    constexpr int TOP_N = 10; // number of top entries for statistics
+    constexpr int DEFAULT_SORT_CHOICE = 3; // default sort index for movie list
+    constexpr int MAX_SORT_OPTION = 5; // maximum sort option index
+
     constexpr int SORT_RATE = 1;
     constexpr int SORT_CNT = 2;
     constexpr int SORT_TITLE = 3;
     constexpr int SORT_GENRE = 4;
     constexpr int SORT_YEAR = 5;
 
-    // 메뉴 타이틀 문자열
-    inline const string TITLE_MAIN = "MOVIE RECOMMENDER SYSTEM";
+        // Menu option constants
+    // Main menu constants
+    constexpr int MAIN_EXIT = 0;
+    constexpr int MAIN_MOVIE = 1;
+    constexpr int MAIN_USER = 2;
+    constexpr int MAIN_RATING = 3;
+    constexpr int MAIN_REC = 4;
+    constexpr int MAIN_STAT = 5;
+    constexpr int MENU_BACK = 0;
+
+    enum MovieMenu {
+        MOV_ADD = 1,
+        MOV_SEARCH,
+        MOV_LIST
+    };
+
+    enum UserMenu {
+        USR_ADD = 1,
+        USR_LIST
+    };
+
+    enum RatingMenu {
+        RAT_ADD = 1,
+        RAT_LIST
+    };
+
+    enum RecMenu {
+        REC_SIM = 1,
+        REC_USER,
+        REC_GENRE
+    };
+
+    enum StatMenu {
+        STAT_ALL = 1,
+        STAT_TOP_RATE,
+        STAT_TOP_COUNT,
+        STAT_BY_GENRE,
+        STAT_BY_YEAR,
+        STAT_TOP_USERS,
+        STAT_USER_DETAILS
+    };
+
+    inline const string TITLE_MAIN = "영화 추천 시스템";
     inline const string TITLE_MOVIE = "영화 관리";
     inline const string TITLE_USER = "사용자 관리";
     inline const string TITLE_RATING = "평점 관리";
-    inline const string TITLE_RECOMMEND = "추천 서비스";
-    inline const string TITLE_STATISTICS = "통계 서비스";
+    inline const string TITLE_REC = "추천 서비스";
+    inline const string TITLE_STAT = "통계 서비스";
 
     // 메뉴 선택 옵션 리스트
-    inline const vector<string> OPTIONS_MAIN = {
+    inline const vector<string> OPT_MAIN = {
         "영화 관리", "사용자 관리", "평점 관리", "추천 서비스", "통계 서비스"
     };
-    inline const vector<string> OPTIONS_MOVIE = {
-        "영화 추가", "제목으로 검색", "전체 목록 (정렬 포함)"
+    inline const vector<string> OPT_MOVIE = {
+        "Add movie", "Search title", "All movies"
     };
-    inline const vector<string> OPTIONS_USER = {
-        "사용자 추가", "사용자 목록 출력"
+    inline const vector<string> OPT_USER = {
+        "Add user", "User list"
     };
-    inline const vector<string> OPTIONS_RATING = {
-        "평점 입력", "영화별 평점 보기"
+    inline const vector<string> OPT_RATING = {
+        "Add rating", "View ratings"
     };
-    inline const vector<string> OPTIONS_RECOMMEND = {
-        "유사 사용자 찾기", "영화 추천 받기 (사용자 기준)", "영화 추천 받기 (장르 유사도 기준)"
+    inline const vector<string> OPT_REC = {
+        "Similar users", "Recommend by user", "Recommend by genre"
     };
-    inline const vector<string> OPTIONS_STATISTICS = {
+    inline const vector<string> OPT_STAT = {
         "전체 통계", "평점 순위 (상위 10)", "평가 수 순위 (상위 10)",
         "장르별 통계", "연도별 통계", "사용자별 평가 순위", "사용자 상세 정보"
     };
-    inline const vector<string> OPTIONS_SORT = {
-        "평점 높은순", "평점 많은순", "제목 사전순", "장르 사전순", "개봉연도순 (최신순)"
+    inline const vector<string> OPT_SORT = {
+        "Top rating", "Most reviews", "Title", "Genre", "Year (recent)"
     };
 
 } // namespace MovieConstants

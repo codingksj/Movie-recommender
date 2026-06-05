@@ -6,13 +6,8 @@
 using std::string;
 using std::cout;
 
-// 출시 연도 허용 범위 상수
-const int MIN_YEAR = 1888;
-const int MAX_YEAR = 2026;
-
-// 평점 점수 범위 상수
-const double MIN_RATE = 0.0;
-const double MAX_RATE = 10.0;
+// Use central constants from MovieConstant.h
+#include "MovieConstant.h"
 
 // 기본 생성자
 Movie::Movie() : Base(""), genre(""), releaseYear(0), totalRating(0.0), ratingCount(0) {}
@@ -21,9 +16,9 @@ Movie::Movie() : Base(""), genre(""), releaseYear(0), totalRating(0.0), ratingCo
 Movie::Movie(const string& title, int year, const string& genre)
     : Base(title), totalRating(0.0), ratingCount(0) {
     this->genre = Base::validateString(genre, "장르");
-    if (year < MIN_YEAR || year > MAX_YEAR) {
-        cout << year << "은(는) 올바른 출시 연도 범위(" << MIN_YEAR << "~" << MAX_YEAR << ")를 벗어납니다." << '\n';
-        this->releaseYear = MAX_YEAR;
+    if (year < MovieConstants::DATA_MIN_YEAR || year > MovieConstants::DATA_MAX_YEAR) {
+        cout << year << "은(는) 올바른 출시 연도 범위(" << MovieConstants::DATA_MIN_YEAR << "~" << MovieConstants::DATA_MAX_YEAR << ")를 벗어납니다." << '\n';
+        this->releaseYear = MovieConstants::DATA_MAX_YEAR;
     } else {
         this->releaseYear = year;
     }
@@ -50,14 +45,27 @@ double      Movie::getAverageRating() const { return ratingCount > 0 ? totalRati
 
 // 평점 추가 등록
 bool Movie::addRating(double r) {
-    if (r < MIN_RATE || r > MAX_RATE) {
-        cout << r << "은(는) 평점 범위(" << MIN_RATE << " ~ " << MAX_RATE << ")를 벗어납니다." << '\n';
+    if (r < MovieConstants::MIN_RATE || r > MovieConstants::MAX_RATE) {
+        cout << r << "은(는) 평점 범위(" << MovieConstants::MIN_RATE << " ~ " << MovieConstants::MAX_RATE << ")를 벗어납니다." << '\n';
         return false;
     }
     cout << '[' << Base::name << "] 에 평점 추가 : " << r << "점\n";
     totalRating += r;
     ratingCount++;
     return true;
+}
+
+void Movie::resetRatingAggregate() {
+    totalRating = 0.0;
+    ratingCount = 0;
+}
+
+void Movie::mergeRating(double r) {
+    if (r < MovieConstants::MIN_RATE || r > MovieConstants::MAX_RATE) {
+        return;
+    }
+    totalRating += r;
+    ratingCount++;
 }
 
 // 동등 비교 연산자 오버로딩 (제목 기준 - 대소문자 무시, 장르 및 개봉 연도도 동일해야 함)
@@ -72,10 +80,8 @@ bool Movie::operator==(const string& otherName) const {
     if (otherName.empty()) {
         return false;
     }
-    string titleLower = Base::name;
-    string queryLower = otherName;
-    for (char &c : titleLower) { c = tolower(c); }
-    for (char &c : queryLower) { c = tolower(c); }
+    string titleLower = Base::normalizeString(Base::name);
+    string queryLower = Base::normalizeString(otherName);
     return titleLower.find(queryLower) != string::npos;
 }
 

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <iomanip>
 #include <sstream>
 #include <iterator>
@@ -17,8 +18,9 @@ using namespace std;
 // 특정 사용자의 선호도를 파악하기 위해 시스템에 기록된 모든 평점 중 해당 사용자의 것만 필터링하여 반환함
 vector<Rating> Recommender::getUserRatings(const string& userName) const {
     vector<Rating> result;
+    string searchName = Base::normalizeString(userName);
     for (const auto& r : ratingManager.getRatings()) {
-        if (r.getUserName() == userName) {
+        if (Base::normalizeString(r.getUserName()) == searchName) {
             result.push_back(r);
         }
     }
@@ -28,29 +30,31 @@ vector<Rating> Recommender::getUserRatings(const string& userName) const {
 // 코사인 유사도를 이용하여 두 사용자의 취향이 얼마나 비슷한지 정량화하기 위함
 double Recommender::calculateSimilarity(const vector<Rating>& ratingsA,
                                          const vector<Rating>& ratingsB) const {
+    unordered_map<string, double> ratingsMapA;
+    ratingsMapA.reserve(ratingsA.size());
+    double magA = 0.0;
+    for (const auto& r : ratingsA) {
+        ratingsMapA[r.getMovieTitle()] = r.getUserRating();
+        magA += r.getUserRating() * r.getUserRating();
+    }
+
+    unordered_map<string, double> ratingsMapB;
+    ratingsMapB.reserve(ratingsB.size());
+    double magB = 0.0;
+    for (const auto& r : ratingsB) {
+        ratingsMapB[r.getMovieTitle()] = r.getUserRating();
+        magB += r.getUserRating() * r.getUserRating();
+    }
+
     double dotProduct = 0.0;
-    double magA = 0.0, magB = 0.0;
-    int commonCount = 0;
-
-    // 전체 평가한 이력을 기준으로 사용자 벡터의 크기(Norm) 계산
-    for (const auto& rA : ratingsA) {
-        magA += rA.getUserRating() * rA.getUserRating();
-    }
-    for (const auto& rB : ratingsB) {
-        magB += rB.getUserRating() * rB.getUserRating();
-    }
-
-    // 공통으로 평가한 영화 매칭 (연산자 오버로딩 활용)
-    for (const auto& rA : ratingsA) {
-        for (const auto& rB : ratingsB) {
-            if (rA == rB) {
-                dotProduct += rA.getUserRating() * rB.getUserRating();
-                commonCount++;
-            }
+    for (const auto& [movieTitle, scoreA] : ratingsMapA) {
+        auto it = ratingsMapB.find(movieTitle);
+        if (it != ratingsMapB.end()) {
+            dotProduct += scoreA * it->second;
         }
     }
 
-    if (commonCount == 0 || magA == 0.0 || magB == 0.0) {
+    if (dotProduct == 0.0 || magA == 0.0 || magB == 0.0) {
         return 0.0;
     }
 
@@ -199,22 +203,14 @@ vector<Movie> Recommender::filterByGenre(const string& genre) const {
 
 // 사용자가 관심을 가지는 특정 영화와 유사한 분위기/내용(장르)을 가진 영화 목록을 제공하기 위함
 vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int N) const {
-    const auto& allMovies = movieManager.getMovies();
-    const Movie* targetMovie = nullptr;
-    for (const auto& m : allMovies) {
-        if (m == targetMovieTitle) {
-            targetMovie = &m;
-            break;
-        }
-    }
-
+    const Movie* targetMovie = movieManager.findMovieByTitle(targetMovieTitle);
     if (!targetMovie) { return {}; }
 
-    // Use filterByGenre to narrow candidates to the same genre (faster and clearer)
     vector<Movie> sameGenre = filterByGenre(targetMovie->getGenre());
     vector<pair<Movie, double>> candidates;
+    string targetTitleLower = Base::normalizeString(targetMovie->getTitle());
     for (const auto& m : sameGenre) {
-        if (m == targetMovieTitle) { continue; }
+        if (Base::normalizeString(m.getTitle()) == targetTitleLower) { continue; }
         double sim = calculateGenreSimilarity(*targetMovie, m);
         candidates.push_back({m, sim});
     }

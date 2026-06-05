@@ -7,24 +7,26 @@
 #include <chrono>
 
 using namespace std;
+using Clock = chrono::high_resolution_clock;
+using Ms = chrono::microseconds;
 
 // 신규 사용자를 시스템에 등록하기 위해 중복 확인 후 데이터를 추가함
 pair<UserResult, double> UserManager::addUser(const string& name, const string& email) {
-    auto start = chrono::high_resolution_clock::now();
+    auto start = Clock::now();
     
     User newUser(name, email);
     for (const auto& u : users) {
         if (u == newUser) {
-            auto end = chrono::high_resolution_clock::now();
-            double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+            auto end = Clock::now();
+            double ms = chrono::duration_cast<Ms>(end - start).count() / 1000.0;
             return {UserResult::DUPLICATE_USER, ms};
         }
     }
 
     users.push_back(newUser);
     
-    auto end = chrono::high_resolution_clock::now();
-    double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    double ms = chrono::duration_cast<Ms>(end - start).count() / 1000.0;
     
     return {UserResult::SUCCESS, ms};
 }
@@ -42,8 +44,10 @@ vector<string> UserManager::getAllUsersFormatted() const {
 
 // 이름으로 사용자 포인터 찾기 (외부에서 사용자 존재 여부 확인 등을 위해 제공)
 const User* UserManager::findUserByName(const string& name) const {
+    string searchName = Base::normalizeString(name);
+
     for (const auto& u : users) {
-        if (u.getUserName() == name) {
+        if (Base::normalizeString(u.getUserName()) == searchName) {
             return &u;
         }
     }
@@ -52,7 +56,8 @@ const User* UserManager::findUserByName(const string& name) const {
 
 // 파일에서 사용자 데이터를 메모리로 불러오기 위함
 double UserManager::loadFromFile() {
-    auto start = chrono::high_resolution_clock::now();
+    users.clear();
+    auto start = Clock::now();
     int count = 0;
     try {
         ifstream file(filePath);
@@ -77,13 +82,13 @@ double UserManager::loadFromFile() {
     } catch (const exception& e) {
         cerr << "UserManager::loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = chrono::high_resolution_clock::now();
-    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }
 
 // 메모리의 사용자 데이터를 파일에 안전하게 보관하기 위함
 double UserManager::saveToFile() {
-    auto start = chrono::high_resolution_clock::now();
+    auto start = Clock::now();
     try {
         ofstream file(filePath);
         if (!file.is_open()) {
@@ -98,6 +103,6 @@ double UserManager::saveToFile() {
     } catch (const exception &e) {
         cerr << "UserManager::saveToFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = chrono::high_resolution_clock::now();
-    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }

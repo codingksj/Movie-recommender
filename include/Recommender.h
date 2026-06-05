@@ -27,7 +27,6 @@ private:
                                                      const set<string>& watchedMovies, size_t actualK);
 
     double calculateGenreSimilarity(const Movie& m1, const Movie& m2) const;
-    // Returns movies that exactly match given genre (case-insensitive)
     std::vector<Movie> filterByGenre(const string& genre) const;
 
 public:

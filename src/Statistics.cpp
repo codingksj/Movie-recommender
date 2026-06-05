@@ -52,16 +52,20 @@ vector<string> Statistics::getTopMoviesByRating(int n) const {
         return a.getTitle() < b.getTitle();
     });
     
-    if (n > static_cast<int>(sorted.size())) {
-        n = sorted.size();
+    if (n <= 0) {
+        return {};
+    }
+    size_t limit = n < 0 ? 0 : n;
+    if (limit > sorted.size()) {
+        limit = sorted.size();
     }
     
     vector<string> result;
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < limit; ++i) {
         stringstream ss;
-        ss << "  " << (i + 1) << ". " << sorted[i].getTitle() 
-           << " (평점: " << fixed << setprecision(1) << sorted[i].getAverageRating()
-           << ", 평가 수: " << sorted[i].getRatingCount() << ")";
+        ss << "    " << setw(30) << left << sorted[i].getTitle()
+           << " | 평점: " << fixed << setprecision(1) << setw(4) << right << sorted[i].getAverageRating()
+           << " | 평가: " << setw(7) << sorted[i].getRatingCount();
         result.push_back(ss.str());
     }
     return result;
@@ -82,16 +86,20 @@ vector<string> Statistics::getTopMoviesByRatingCount(int n) const {
         return a.getTitle() < b.getTitle();
     });
     
-    if (n > static_cast<int>(sorted.size())) {
-        n = sorted.size();
+    if (n <= 0) {
+        return {};
+    }
+    size_t limit = n < 0 ? 0 : n;
+    if (limit > sorted.size()) {
+        limit = sorted.size();
     }
     
     vector<string> result;
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < limit; ++i) {
         stringstream ss;
-        ss << "  " << (i + 1) << ". " << sorted[i].getTitle() 
-           << " (평가 수: " << sorted[i].getRatingCount()
-           << ", 평점: " << fixed << setprecision(1) << sorted[i].getAverageRating() << ")";
+        ss << "    " << setw(30) << left << sorted[i].getTitle()
+           << " | 평가: " << setw(7) << right << sorted[i].getRatingCount()
+           << " | 평점: " << fixed << setprecision(1) << setw(4) << sorted[i].getAverageRating();
         result.push_back(ss.str());
     }
     return result;
@@ -106,8 +114,8 @@ vector<string> Statistics::getStatisticsByGenre() const {
         double avg = statPair.first;
         int count = statPair.second;
         stringstream ss;
-        ss << "  " << genre << " : 평균 " << fixed << setprecision(1) << avg
-           << " (영화 " << count << "개)";
+        ss << "  " << setw(10) << left << genre << " | 평균: " << fixed << setprecision(1) << setw(4) << right << avg
+           << " | 영화 수: " << setw(3) << count;
         result.push_back(ss.str());
     }
     return result;
@@ -122,8 +130,8 @@ vector<string> Statistics::getStatisticsByYear() const {
         double avg = statPair.first;
         int count = statPair.second;
         stringstream ss;
-        ss << "  " << year << "년 : 평균 " << fixed << setprecision(1) << avg
-           << " (영화 " << count << "개)";
+        ss << "  " << setw(4) << year << "년 | 평균: " << fixed << setprecision(1) << setw(4) << right << avg
+           << " | 영화 수: " << setw(3) << count;
         result.push_back(ss.str());
     }
     return result;
@@ -147,19 +155,23 @@ vector<string> Statistics::getTopUsersByRatingCount(int n) const {
         return a.first < b.first;
     });
     
-    if (n > static_cast<int>(sorted.size())) {
-        n = sorted.size();
+    if (n <= 0) {
+        return {};
+    }
+    size_t limit = n < 0 ? 0 : n;
+    if (limit > sorted.size()) {
+        limit = sorted.size();
     }
     
     vector<string> result;
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < limit; ++i) {
         const auto& [userName, statPair] = sorted[i];
         int count = statPair.first;
         double avg = statPair.second;
         stringstream ss;
-        ss << "  " << (i + 1) << ". " << userName 
-           << " (평가 수: " << count 
-           << ", 평균 평점: " << fixed << setprecision(2) << avg << ")";
+        ss << "    " << setw(20) << left << userName
+           << " | 평가: " << setw(7) << right << count
+           << " | 평균: " << fixed << setprecision(2) << setw(5) << avg;
         result.push_back(ss.str());
     }
     return result;
@@ -169,7 +181,8 @@ vector<string> Statistics::getUserStatistics(const string& userName) const {
     vector<string> result;
     
     // 사용자 존재 확인
-    if (!userManager.findUserByName(userName)) {
+    const User* user = userManager.findUserByName(userName);
+    if (!user) {
         result.push_back("  존재하지 않는 사용자입니다.");
         return result;
     }
@@ -178,7 +191,7 @@ vector<string> Statistics::getUserStatistics(const string& userName) const {
     const auto& allRatings = ratingManager.getRatings();
     vector<Rating> userRatings;
     for (const auto& r : allRatings) {
-        if (r.getUserName() == userName) {
+        if (r.getUserName() == user->getUserName()) {
             userRatings.push_back(r);
         }
     }

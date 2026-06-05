@@ -8,45 +8,48 @@
 #include <chrono>
 
 using namespace std;
+using Clock = chrono::high_resolution_clock;
+using Ms = chrono::microseconds;
 
 // 신규 평점을 시스템에 등록하기 위해 제약조건과 데이터 유효성을 검증하고 저장함
 pair<RatingResult, double> RatingManager::addRating(const string& userName, const string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager) {
-    auto start = chrono::high_resolution_clock::now();
+    auto start = Clock::now();
 
-    if (!userManager.findUserByName(userName)) {
-        auto end = chrono::high_resolution_clock::now();
-        return {RatingResult::USER_NOT_FOUND, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+    const User* user = userManager.findUserByName(userName);
+    if (!user) {
+        auto end = Clock::now();
+        return {RatingResult::USER_NOT_FOUND, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
     Movie* movie = movieManager.findMovieByTitle(movieTitle);
     if (!movie) {
-        auto end = chrono::high_resolution_clock::now();
-        return {RatingResult::MOVIE_NOT_FOUND, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+        auto end = Clock::now();
+        return {RatingResult::MOVIE_NOT_FOUND, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
     if (score < MovieConstants::MIN_RATE || score > MovieConstants::MAX_RATE) {
-        auto end = chrono::high_resolution_clock::now();
-        return {RatingResult::INVALID_SCORE, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+        auto end = Clock::now();
+        return {RatingResult::INVALID_SCORE, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
     // 중복 평가 체크
     for (const auto& r : ratings) {
         if (r.getUserName() == userName && r.getMovieTitle() == movie->getTitle()) {
-            auto end = chrono::high_resolution_clock::now();
-            return {RatingResult::DUPLICATE_RATING, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+            auto end = Clock::now();
+            return {RatingResult::DUPLICATE_RATING, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
         }
     }
 
     if (!movie->addRating(score)) {
-        auto end = chrono::high_resolution_clock::now();
-        return {RatingResult::INVALID_SCORE, chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0};
+        auto end = Clock::now();
+        return {RatingResult::INVALID_SCORE, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
-    // 표준화된 제목으로 Rating 저장
-    ratings.push_back(Rating(userName, movie->getTitle(), score));
+    // 사용자 이름과 영화 제목은 내부 저장된 정규값을 사용
+    ratings.push_back(Rating(user->getUserName(), movie->getTitle(), score));
     
-    auto end = chrono::high_resolution_clock::now();
-    double ms = chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    double ms = chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 
     return {RatingResult::SUCCESS, ms};
 }
@@ -66,7 +69,8 @@ vector<string> RatingManager::getRatingsByMovieFormatted(const string& movieTitl
 
 // 파일에서 평점 데이터를 메모리로 불러오기 위함
 double RatingManager::loadFromFile() {
-    auto start = chrono::high_resolution_clock::now();
+    ratings.clear();
+    auto start = Clock::now();
     try {
         ifstream file(filePath);
         if (!file.is_open()) {
@@ -96,13 +100,13 @@ double RatingManager::loadFromFile() {
     } catch (const exception &e) {
         cerr << "RatingManager::loadFromFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = chrono::high_resolution_clock::now();
-    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }
 
 // 메모리의 평점 데이터를 파일에 안전하게 보관하기 위함
 double RatingManager::saveToFile() {
-    auto start = chrono::high_resolution_clock::now();
+    auto start = Clock::now();
     try {
         ofstream file(filePath);
         if (!file.is_open()) {
@@ -118,6 +122,6 @@ double RatingManager::saveToFile() {
     } catch (const exception& e) {
         cerr << "RatingManager::saveToFile 예외 발생: " << e.what() << "\n";
     }
-    auto end = chrono::high_resolution_clock::now();
-    return chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0;
+    auto end = Clock::now();
+    return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }

@@ -22,6 +22,7 @@ public:
     pair<vector<string>, double> getSortedMoviesFormatted(int sortChoice, string& outSortName) const;
     
     Movie* findMovieByTitle(const string& title);
+    const Movie* findMovieByTitle(const string& title) const;
     const vector<Movie>& getMovies() const { return movies; }
 
     double loadFromFile() override;

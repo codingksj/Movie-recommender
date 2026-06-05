@@ -3,52 +3,70 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "MovieManager.h"
-#include "UserManager.h"
-#include "RatingManager.h"
-#include "Recommender.h"
-#include "Statistics.h"
+
+class MovieManager;
+class UserManager;
+class RatingManager;
+class Recommender;
+class Statistics;
 
 using std::string;
 using std::vector;
 
 class Menu {
 public:
-    static void showHeader(const string& title);
-    static void showMainMenu();
-    static void showSubMenu(const string& title, const vector<string>& options);
-    static void showDynamicResult(const string& title, const vector<string>& lines);
-    static int getChoice();
+    static void header(const string& title);
+    static void mainMenu();
+    static void subMenu(const string& title, const vector<string>& options);
+    static void resultBox(const string& title, const vector<string>& lines);
+    static string readLine();
+    static int readChoice();
+    static double readDouble();
 
-    static void handleMovieMenu(MovieManager& movieManager);
-    static void handleUserMenu(UserManager& userManager);
-    static void handleRatingMenu(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager);
-    static void handleRecommendationMenu(Recommender& recommender);
-    static void handleStatisticsMenu(Statistics& statistics);
+    static void handleMovieMenu(MovieManager& movieMgr);
+    static void handleUserMenu(UserManager& userMgr);
+    static void handleRatingMenu(RatingManager& ratingMgr, MovieManager& movieMgr, UserManager& userMgr);
+    static void handleRecommendationMenu(Recommender& rec);
+    static void handleStatisticsMenu(Statistics& stats);
 
     static void showLoadSummary(int movieCount, int userCount, int ratingCount);
     static void showSaveSummary(int movieCount, int userCount, int ratingCount);
 
 private:
-    static void promptAddMovie(MovieManager& movieManager);
-    static void promptSearchMovie(MovieManager& movieManager);
-    static void promptPrintMovies(MovieManager& movieManager);
+    class MovieHandler {
+    public:
+        static void add(MovieManager& manager);
+        static void search(MovieManager& manager);
+        static void print(MovieManager& manager);
+    };
 
-    static void promptAddUser(UserManager& userManager);
-    static void promptPrintUsers(UserManager& userManager);
+    class UserHandler {
+    public:
+        static void add(UserManager& manager);
+        static void print(UserManager& manager);
+    };
 
-    static void promptAddRating(RatingManager& ratingManager, MovieManager& movieManager, UserManager& userManager);
-    static void promptPrintRatings(RatingManager& ratingManager);
+    class RatingHandler {
+    public:
+        static void add(RatingManager& rMgr, MovieManager& mMgr, UserManager& uMgr);
+        static void print(RatingManager& manager);
+    };
 
-    static void promptSimilarUsers(Recommender& recommender);
-    static void promptRecommendByUser(Recommender& recommender);
-    static void promptRecommendByGenre(Recommender& recommender);
+    class RecommendationHandler {
+    public:
+        static void similarUsers(Recommender& manager);
+        static void recommendByUser(Recommender& manager);
+        static void recommendByGenre(Recommender& manager);
+    };
 
-    static void promptOverallStatistics(Statistics& statistics);
-    static void promptTopMoviesByRating(Statistics& statistics);
-    static void promptTopMoviesByRatingCount(Statistics& statistics);
-    static void promptStatisticsByGenre(Statistics& statistics);
-    static void promptStatisticsByYear(Statistics& statistics);
-    static void promptTopUsersByRatingCount(Statistics& statistics);
-    static void promptUserStatistics(Statistics& statistics);
+    class StatisticsHandler {
+    public:
+        static void overall(Statistics& manager);
+        static void topByRating(Statistics& manager);
+        static void topByRatingCount(Statistics& manager);
+        static void byGenre(Statistics& manager);
+        static void byYear(Statistics& manager);
+        static void topUsers(Statistics& manager);
+        static void userStats(Statistics& manager);
+    };
 };
