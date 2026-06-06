@@ -91,7 +91,7 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, in
 // 타겟 사용자의 미시청 영화에 대한 예상 점수 도출 (협업 필터링 추천)
 // @param k 고려할 유사 사용자 수 @param watched 미시청 영화 유무
 map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims,
-                                                    const set<string>& watched, size_t k) {
+                                                    const set<string>& watched, size_t k) const {
     map<string, double> movieScores;
     map<string, double> sumSims;
 
@@ -173,10 +173,8 @@ double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) c
         m1.getGenre().empty() || m2.getGenre().empty()) {
         return 0.0;
     }
-    string g1 = m1.getGenre();
-    string g2 = m2.getGenre();
-    transform(g1.begin(), g1.end(), g1.begin(), ::tolower);
-    transform(g2.begin(), g2.end(), g2.begin(), ::tolower);
+    string g1 = Base::normalizeString(m1.getGenre());
+    string g2 = Base::normalizeString(m2.getGenre());
 
     return (g1 == g2) ? 1.0 : 0.0;
 }
@@ -184,15 +182,12 @@ double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) c
 vector<Movie> Recommender::filterByGenre(const string& genre) const {
     vector<Movie> result;
     if (genre.empty()) { return result; }
-    string g = genre;
-    transform(g.begin(), g.end(), g.begin(), ::tolower);
+    string g = Base::normalizeString(genre);
 
     const auto& movies = mm.getMovies();
     copy_if(movies.begin(), movies.end(), back_inserter(result),
         [&g](const Movie& m) {
-            string mg = m.getGenre();
-            transform(mg.begin(), mg.end(), mg.begin(), ::tolower);
-            return mg == g;
+            return Base::normalizeString(m.getGenre()) == g;
         });
     return result;
 }

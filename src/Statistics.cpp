@@ -53,7 +53,7 @@ vector<string> Statistics::getTopMoviesByRating(int n) const {
     if (n <= 0) {
         return {};
     }
-    size_t limit = n < 0 ? 0 : n;
+    size_t limit = static_cast<size_t>(n);
     if (limit > sorted.size()) {
         limit = sorted.size();
     }
@@ -87,7 +87,7 @@ vector<string> Statistics::getTopMoviesByRatingCount(int n) const {
     if (n <= 0) {
         return {};
     }
-    size_t limit = n < 0 ? 0 : n;
+    size_t limit = static_cast<size_t>(n);
     if (limit > sorted.size()) {
         limit = sorted.size();
     }
@@ -153,7 +153,7 @@ vector<string> Statistics::getTopUsersByRatingCount(int n) const {
     if (n <= 0) {
         return {};
     }
-    size_t limit = n < 0 ? 0 : n;
+    size_t limit = static_cast<size_t>(n);
     if (limit > sorted.size()) {
         limit = sorted.size();
     }

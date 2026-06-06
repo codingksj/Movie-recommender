@@ -9,7 +9,7 @@ using namespace MC::Score;
 using std::string;
 using std::cout;
 
-Rating::Rating(string user, string title, double score)
+Rating::Rating(const string& user, const string& title, double score)
     : Base(title) {
     this->userName = Base::validateString(user, "유저 이름");
     if (score < MIN || score > MAX) {

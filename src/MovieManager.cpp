@@ -37,17 +37,15 @@ pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, 
 }
 
 pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& query, string& outQuery) const {
-    string queryLower = query;
-    for (char &c : queryLower) { c = tolower(c); }
-    
+    string queryLower = Base::normalizeString(query);
+
     auto searchStart = Clock::now();
     vector<pair<Movie, string>> exactMatches;
     vector<pair<Movie, string>> partialMatches;
     size_t maxTitleLen = 0, maxGenreLen = 0;
-    
+
     for (const auto &m : movies) {
-        string titleLower = m.getTitle();
-        for (char &c : titleLower) { c = tolower(c); }
+        string titleLower = Base::normalizeString(m.getTitle());
         
         size_t pos = titleLower.find(queryLower);
         if (pos != string::npos) {

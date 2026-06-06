@@ -10,7 +10,7 @@ private:
 
 public:
     using Base::operator==;
-    Rating(string user, string title, double score);
+    Rating(const string& user, const string& title, double score);
 
     string     getUserName()        const;
     string     getMovieTitle()      const;
