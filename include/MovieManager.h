@@ -19,7 +19,7 @@ private:
 public:
     pair<MovieResult, double> addMovie(const string& title, int year, const string& genre);
     pair<vector<string>, double> searchByTitleFormatted(const string& query, string& outQuery) const;
-    pair<vector<string>, double> getSortedMoviesFormatted(int sortChoice, string& outSortName) const;
+    pair<vector<string>, double> getSortedMoviesFormatted(int choice, string& sortName) const;
     
     Movie* findMovieByTitle(const string& title);
     const Movie* findMovieByTitle(const string& title) const;

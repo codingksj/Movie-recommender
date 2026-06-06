@@ -1,4 +1,4 @@
-// 영화 클래스: 개별 영화 데이터와 평점 집계 관리
+// 영화 도메인 모델 — 메타데이터 및 평점 집계
 
 #include "Movie.h"
 #include <iostream>
@@ -8,14 +8,17 @@ using std::cout;
 
 #include "MovieConstant.h"
 
+using namespace MC::Dataset;
+using namespace MC::Score;
+
 Movie::Movie() : Base(""), genre(""), releaseYear(0), totalRating(0.0), ratingCount(0) {}
 
 Movie::Movie(const string& title, int year, const string& genre)
     : Base(title), totalRating(0.0), ratingCount(0) {
     this->genre = Base::validateString(genre, "장르");
-    if (year < MovieConstants::DATA_MIN_YEAR || year > MovieConstants::DATA_MAX_YEAR) {
+    if (year < MIN_YEAR || year > MAX_YEAR) {
         cout << year << "은(는) 올바른 출시 연도 범위를 벗어납니다.\n";
-        this->releaseYear = MovieConstants::DATA_MAX_YEAR;
+        this->releaseYear = MAX_YEAR;
     } else {
         this->releaseYear = year;
     }
@@ -31,7 +34,7 @@ int         Movie::getRatingCount()  const { return ratingCount; }
 double      Movie::getAverageRating() const { return ratingCount > 0 ? totalRating / ratingCount : 0.0; }
 
 bool Movie::addRating(double r) {
-    if (r < MovieConstants::MIN_RATE || r > MovieConstants::MAX_RATE) {
+    if (r < MIN || r > MAX) {
         cout << r << "은(는) 평점 범위를 벗어납니다.\n";
         return false;
     }
@@ -47,7 +50,7 @@ void Movie::resetRatingAggregate() {
 }
 
 void Movie::mergeRating(double r) {
-    if (r < MovieConstants::MIN_RATE || r > MovieConstants::MAX_RATE) {
+    if (r < MIN || r > MAX) {
         return;
     }
     totalRating += r;

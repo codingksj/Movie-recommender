@@ -8,7 +8,7 @@ private:
     string      userEmail;
 
 public:
-    User(const string& userName, const string& userEmail);
+    User(const string& name, const string& email);
 
     string      getUserName()       const;
     string      getUserEmail()      const;

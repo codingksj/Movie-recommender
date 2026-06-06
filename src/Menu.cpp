@@ -1,3 +1,5 @@
+// CLI 메뉴 렌더링, 입력 처리 및 서브메뉴 라우팅
+
 #include "Menu.h"
 #include "MovieConstant.h"
 #include "MovieManager.h"
@@ -13,21 +15,23 @@
 #include <cmath>
 
 using namespace std;
+using namespace MC::Menu;
+using namespace MC::Ui;
+using namespace MC::Sort;
+using namespace MC::Recommend;
+using namespace MC::Score;
 
-namespace {
-    void printMenu(const string& title, const vector<string>& options, const string& exitText) {
-        Menu::header(title);
-        int numWidth = (int)to_string(options.size()).length();
-        for (size_t i = 0; i < options.size(); ++i) {
-            cout << "  [" << setw(numWidth) << right << (i + 1) << "] " << options[i] << "\n";
-        }
-        cout << "  [" << setw(numWidth) << right << 0 << "] " << exitText << "\n";
-        cout << "========================================\n";
-        cout << "선택> ";
+static void printMenu(const string& title, const vector<string>& options, const string& exitText) {
+    Menu::header(title);
+    int numWidth = (int)to_string(options.size()).length();
+    for (size_t i = 0; i < options.size(); ++i) {
+        cout << "  [" << setw(numWidth) << right << (i + 1) << "] " << options[i] << "\n";
     }
+    cout << "  [" << setw(numWidth) << right << 0 << "] " << exitText << "\n";
+    cout << "========================================\n";
+    cout << "선택> ";
 }
 
-// Helper to format list
 static vector<string> formatList(const vector<string>& items) {
     vector<string> lines;
     int numWidth = (int)to_string(items.size()).length();
@@ -39,7 +43,6 @@ static vector<string> formatList(const vector<string>& items) {
     return lines;
 }
 
-// UI helpers (unchanged)
 void Menu::header(const string& title) {
     cout << "\n========================================\n";
     cout << "       " << title << "\n";
@@ -47,7 +50,7 @@ void Menu::header(const string& title) {
 }
 
 void Menu::mainMenu() {
-    printMenu(MovieConstants::TITLE_MAIN, MovieConstants::OPT_MAIN, "종료 및 저장");
+    printMenu(Main::TITLE, Main::OPTIONS, "종료 및 저장");
 }
 
 void Menu::subMenu(const string& title, const vector<string>& options) {
@@ -55,14 +58,14 @@ void Menu::subMenu(const string& title, const vector<string>& options) {
 }
 
 void Menu::resultBox(const string& title, const vector<string>& lines) {
-    size_t max_len = title.length() + MovieConstants::TITLE_PAD;
+    size_t max_len = title.length() + TITLE_PAD;
     for (const auto& line : lines) {
         if (line.length() > max_len) {
             max_len = line.length();
         }
     }
-    if (max_len < MovieConstants::MIN_WIDTH) {
-        max_len = MovieConstants::MIN_WIDTH;
+    if (max_len < MIN_WIDTH) {
+        max_len = MIN_WIDTH;
     }
     string border(max_len + 4, '=');
     cout << "\n" << border << "\n";
@@ -107,8 +110,7 @@ double Menu::readDouble() {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-// ==================== MovieHandler ====================
-void Menu::MovieHandler::add(MovieManager& manager) {
+void Menu::MovieOp::add(MovieManager& mm) {
     cout << "영화 제목: ";
     string title = readLine();
     if (title.empty()) {
@@ -124,7 +126,7 @@ void Menu::MovieHandler::add(MovieManager& manager) {
         cout << "올바른 연도(숫자)를 입력해주세요.\n";
         return;
     }
-    auto res = manager.addMovie(title, year, genre);
+    auto res = mm.addMovie(title, year, genre);
     if (res.first == MovieResult::DUPLICATE_MOVIE) {
         cout << "이미 존재하는 영화입니다.\n";
     } else {
@@ -133,14 +135,14 @@ void Menu::MovieHandler::add(MovieManager& manager) {
     cout << "addMovie took " << fixed << setprecision(3) << res.second << " ms\n";
 }
 
-void Menu::MovieHandler::search(MovieManager& manager) {
+void Menu::MovieOp::search(MovieManager& mm) {
     cout << "검색할 영화 제목: ";
     string query = readLine();
     if (query.empty()) {
         return;
     }
     string outQuery;
-    auto res = manager.searchByTitleFormatted(query, outQuery);
+    auto res = mm.searchByTitleFormatted(query, outQuery);
     if (res.first.empty()) {
         cout << "[" << outQuery << "] 제목의 영화를 찾을 수 없습니다.\n";
     } else {
@@ -149,24 +151,23 @@ void Menu::MovieHandler::search(MovieManager& manager) {
     cout << "search core took " << fixed << setprecision(3) << res.second << " ms\n";
 }
 
-void Menu::MovieHandler::print(MovieManager& manager) {
-    if (manager.getMovies().empty()) {
+void Menu::MovieOp::list(MovieManager& mm) {
+    if (mm.getMovies().empty()) {
         cout << "등록된 영화가 없습니다.\n";
         return;
     }
-    subMenu("정렬 기준 선택", MovieConstants::OPT_SORT);
+    subMenu("정렬 기준 선택", OPTIONS);
     int sortChoice = readChoice();
-    if (sortChoice <= 0 || sortChoice > MovieConstants::MAX_SORT_OPTION) {
-        sortChoice = MovieConstants::DEFAULT_SORT_CHOICE; 
+    if (sortChoice <= 0 || sortChoice > MAX_OPTION) {
+        sortChoice = DEFAULT_CHOICE; 
     }
     string sortName;
-    auto res = manager.getSortedMoviesFormatted(sortChoice, sortName);
+    auto res = mm.getSortedMoviesFormatted(sortChoice, sortName);
     resultBox("전체 영화 목록 (정렬: " + sortName + ")", res.first);
     cout << "printAllMovies took " << fixed << setprecision(3) << res.second << " ms\n";
 }
 
-// ==================== UserHandler ====================
-void Menu::UserHandler::add(UserManager& manager) {
+void Menu::UserOp::add(UserManager& um) {
     cout << "사용자 이름: ";
     string name = readLine();
     if (name.empty()) {
@@ -177,7 +178,7 @@ void Menu::UserHandler::add(UserManager& manager) {
     if (email.empty()) {
         return;
     }
-    auto res = manager.addUser(name, email);
+    auto res = um.addUser(name, email);
     if (res.first == UserResult::DUPLICATE_USER) {
         cout << "[" << name << ", " << email << "]은(는) 이미 존재하는 사용자입니다.\n";
     } else {
@@ -186,78 +187,76 @@ void Menu::UserHandler::add(UserManager& manager) {
     cout << "addUser took " << fixed << setprecision(3) << res.second << " ms\n";
 }
 
-void Menu::UserHandler::print(UserManager& manager) {
-    if (manager.getUsers().empty()) {
+void Menu::UserOp::list(UserManager& um) {
+    if (um.getUsers().empty()) {
         cout << "등록된 사용자가 없습니다.\n";
         return;
     }
-    vector<string> lines = manager.getAllUsersFormatted();
+    vector<string> lines = um.getAllUsersFormatted();
     resultBox("전체 사용자 목록", lines);
 }
 
-// ==================== RatingHandler ====================
-void Menu::RatingHandler::add(RatingManager& rMgr, MovieManager& mMgr, UserManager& uMgr) {
+void Menu::RatingOp::add(RatingManager& rm, MovieManager& mm, UserManager& um) {
     cout << "사용자 이름: ";
-    string userName = readLine();
-    if (userName.empty()) {
+    string user = readLine();
+    if (user.empty()) {
         return;
     }
     cout << "영화 제목: ";
-    string movieTitle = readLine();
-    if (movieTitle.empty()) {
+    string title = readLine();
+    if (title.empty()) {
         return;
     }
-    cout << "평점 (" << MovieConstants::MIN_RATE << " ~ " << MovieConstants::MAX_RATE << "): ";
+    cout << "평점 (" << MIN << " ~ " << MAX << "): ";
     double score = readDouble();
     if (std::isnan(score)) {
         cout << "올바른 평점을 입력해주세요.\n";
         return;
     }
-    auto res = rMgr.addRating(userName, movieTitle, score, mMgr, uMgr);
+    auto res = rm.addRating(user, title, score, mm, um);
     switch (res.first) {
         case RatingResult::USER_NOT_FOUND:
-            cout << "[" << userName << "]은(는) 등록되지 않은 사용자입니다.\n";
+            cout << "[" << user << "]은(는) 등록되지 않은 사용자입니다.\n";
             break;
         case RatingResult::MOVIE_NOT_FOUND:
-            cout << "[" << movieTitle << "] 제목의 영화를 찾을 수 없습니다.\n";
+            cout << "[" << title << "] 제목의 영화를 찾을 수 없습니다.\n";
             break;
         case RatingResult::INVALID_SCORE:
             cout << "올바른 범위의 평점을 입력해주세요.\n";
             break;
         case RatingResult::DUPLICATE_RATING:
-            cout << "이미 등록된 평점입니다. [사용자: " << userName << ", 영화: " << movieTitle << "]\n";
+            cout << "이미 등록된 평점입니다. [사용자: " << user << ", 영화: " << title << "]\n";
             break;
         default:
-            cout << "평점이 등록되었습니다. [사용자: " << userName << ", 영화: " << movieTitle << ", 평점: " << score << "]\n";
+            cout << "평점이 등록되었습니다. [사용자: " << user << ", 영화: " << title << ", 평점: " << score << "]\n";
             break;
     }
     cout << "addRating took " << fixed << setprecision(3) << res.second << " ms\n";
 }
 
-void Menu::RatingHandler::print(RatingManager& manager) {
+void Menu::RatingOp::list(RatingManager& rm) {
     cout << "평점을 볼 영화 제목: ";
-    string movieTitle = readLine();
-    vector<string> lines = manager.getRatingsByMovieFormatted(movieTitle);
+    string title = readLine();
+    vector<string> lines = rm.getRatingsByMovieFormatted(title);
     if (lines.empty()) {
         cout << "등록된 평점이 없습니다.\n";
     } else {
-        resultBox("[" + movieTitle + "] 평점 목록", lines);
+        resultBox("[" + title + "] 평점 목록", lines);
     }
 }
 
-// ==================== RecommendationHandler ====================
-void Menu::RecommendationHandler::similarUsers(Recommender& recommender) {
+void Menu::RecOp::simUsers(Recommender& rec) {
     cout << "유사 사용자를 찾을 사용자 이름 입력: ";
-    string targetUser = readLine();
-    if (!recommender.getUserManager().findUserByName(targetUser)) {
+    string user = readLine();
+    if (!rec.getUserManager().findUserByName(user)) {
         cout << "존재하지 않는 사용자입니다.\n";
         return;
     }
-    if (recommender.getUserRatings(targetUser).empty()) {
+    if (rec.getUserRatings(user).empty()) {
         cout << "해당 사용자의 평점 이력이 없어 유사도를 계산할 수 없습니다.\n";
         return;
     }
-    auto sims = recommender.getSimilarUsers(targetUser, MovieConstants::SIM_LIMIT);
+    auto sims = rec.getSimilarUsers(user, SIM_LIMIT);
     if (sims.empty()) {
         cout << "유사한 사용자가 없습니다.\n";
         return;
@@ -269,90 +268,88 @@ void Menu::RecommendationHandler::similarUsers(Recommender& recommender) {
         ss << "  " << ++count << ". " << s.first << " (유사도: " << fixed << setprecision(3) << s.second << ")";
         lines.push_back(ss.str());
     }
-    resultBox(targetUser + "와 유사한 사용자 상위 " + to_string(MovieConstants::SIM_LIMIT) + "명", lines);
+    resultBox(user + "와 유사한 사용자 상위 " + to_string(SIM_LIMIT) + "명", lines);
 }
 
-void Menu::RecommendationHandler::recommendByUser(Recommender& recommender) {
+void Menu::RecOp::byUser(Recommender& rec) {
     cout << "추천을 받을 사용자 이름 입력: ";
-    string targetUser = readLine();
-    if (!recommender.getUserManager().findUserByName(targetUser)) {
+    string user = readLine();
+    if (!rec.getUserManager().findUserByName(user)) {
         cout << "존재하지 않는 사용자입니다.\n";
         return;
     }
-    vector<string> rec = recommender.recommend(targetUser, MovieConstants::COLLAB_K, MovieConstants::COLLAB_N);
-    if (rec.empty()) {
+    vector<string> items = rec.recommend(user, COLLAB_K, COLLAB_N);
+    if (items.empty()) {
         cout << "추천할 만한 새로운 영화가 없습니다.\n";
         return;
     }
-    resultBox(targetUser + "님을 위한 추천 영화", formatList(rec));
+    resultBox(user + "님을 위한 추천 영화", formatList(items));
 }
 
-void Menu::RecommendationHandler::recommendByGenre(Recommender& recommender) {
+void Menu::RecOp::byGenre(Recommender& rec) {
     cout << "기준 영화 제목 입력: ";
     string title = readLine();
-    vector<string> rec = recommender.recommendByGenre(title, MovieConstants::GENRE_N);
-    if (rec.empty()) {
+    vector<string> items = rec.recommendByGenre(title, GENRE_N);
+    if (items.empty()) {
         cout << "추천할 비슷한 장르의 영화가 없거나 존재하지 않는 영화입니다.\n";
         return;
     }
-    resultBox(title + "와(과) 비슷한 장르 추천 영화", formatList(rec));
+    resultBox(title + "와(과) 비슷한 장르 추천 영화", formatList(items));
 }
 
-// ==================== StatisticsHandler ====================
-void Menu::StatisticsHandler::overall(Statistics& manager) {
-    auto stats = manager.getOverallStatistics();
-    resultBox("전체 통계", stats);
+void Menu::StatOp::overall(Statistics& stats) {
+    auto lines = stats.getOverallStatistics();
+    resultBox("전체 통계", lines);
 }
 
-void Menu::StatisticsHandler::topByRating(Statistics& manager) {
-    auto top = manager.getTopMoviesByRating(MovieConstants::TOP_N);
-    resultBox("평점 높은 순서 (상위 " + std::to_string(MovieConstants::TOP_N) + ")", formatList(top));
+void Menu::StatOp::topRate(Statistics& stats) {
+    auto top = stats.getTopMoviesByRating(TOP_N);
+    resultBox("평점 높은 순서 (상위 " + std::to_string(TOP_N) + ")", formatList(top));
 }
 
-void Menu::StatisticsHandler::topByRatingCount(Statistics& manager) {
-    auto top = manager.getTopMoviesByRatingCount(MovieConstants::TOP_N);
-    resultBox("평가 많은 순서 (상위 " + std::to_string(MovieConstants::TOP_N) + ")", formatList(top));
+void Menu::StatOp::topCount(Statistics& stats) {
+    auto top = stats.getTopMoviesByRatingCount(TOP_N);
+    resultBox("평가 많은 순서 (상위 " + std::to_string(TOP_N) + ")", formatList(top));
 }
 
-void Menu::StatisticsHandler::byGenre(Statistics& manager) {
-    auto genre = manager.getStatisticsByGenre();
+void Menu::StatOp::byGenre(Statistics& stats) {
+    auto genre = stats.getStatisticsByGenre();
     resultBox("장르별 평균 평점", genre);
 }
 
-void Menu::StatisticsHandler::byYear(Statistics& manager) {
-    auto year = manager.getStatisticsByYear();
+void Menu::StatOp::byYear(Statistics& stats) {
+    auto year = stats.getStatisticsByYear();
     resultBox("연도별 평균 평점", year);
 }
 
-void Menu::StatisticsHandler::topUsers(Statistics& manager) {
-    auto top = manager.getTopUsersByRatingCount(MovieConstants::TOP_N);
-    resultBox("사용자별 평가 수 (상위 " + std::to_string(MovieConstants::TOP_N) + ")", formatList(top));
+void Menu::StatOp::topUsers(Statistics& stats) {
+    auto top = stats.getTopUsersByRatingCount(TOP_N);
+    resultBox("사용자별 평가 수 (상위 " + std::to_string(TOP_N) + ")", formatList(top));
 }
 
-void Menu::StatisticsHandler::userStats(Statistics& manager) {
+void Menu::StatOp::userDetail(Statistics& stats) {
     cout << "사용자 이름 입력: ";
-    string userName = readLine();
-    auto stats = manager.getUserStatistics(userName);
-    resultBox(userName + "님의 통계", stats);
+    string user = readLine();
+    auto lines = stats.getUserStatistics(user);
+    resultBox(user + "님의 통계", lines);
 }
 
-// ==================== Menu public handlers ====================
-void Menu::handleMovieMenu(MovieManager& movieMgr) {
+void Menu::runMovie(MovieManager& mm) {
     while (true) {
-        subMenu(MovieConstants::TITLE_MOVIE, MovieConstants::OPT_MOVIE);
+        subMenu(Movie::TITLE, Movie::OPTIONS);
         int subChoice = readChoice();
-        if (subChoice == MovieConstants::MENU_BACK) {
+        if (subChoice == BACK) {
             break;
         }
         switch (subChoice) {
-            case MovieConstants::MOV_ADD:
-                MovieHandler::add(movieMgr);
+            case Movie::ADD:
+                MovieOp::add(mm);
                 break;
-            case MovieConstants::MOV_SEARCH:
-                MovieHandler::search(movieMgr);
+            case Movie::SEARCH:
+                MovieOp::search(mm);
                 break;
-            case MovieConstants::MOV_LIST:
-                MovieHandler::print(movieMgr);
+            case Movie::LIST:
+                MovieOp::list(mm);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";
@@ -361,19 +358,19 @@ void Menu::handleMovieMenu(MovieManager& movieMgr) {
     }
 }
 
-void Menu::handleUserMenu(UserManager& userMgr) {
+void Menu::runUser(UserManager& um) {
     while (true) {
-        subMenu(MovieConstants::TITLE_USER, MovieConstants::OPT_USER);
+        subMenu(User::TITLE, User::OPTIONS);
         int subChoice = readChoice();
-        if (subChoice == MovieConstants::MENU_BACK) {
+        if (subChoice == BACK) {
             break;
         }
         switch (subChoice) {
-            case MovieConstants::USR_ADD:
-                UserHandler::add(userMgr);
+            case User::ADD:
+                UserOp::add(um);
                 break;
-            case MovieConstants::USR_LIST:
-                UserHandler::print(userMgr);
+            case User::LIST:
+                UserOp::list(um);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";
@@ -382,19 +379,19 @@ void Menu::handleUserMenu(UserManager& userMgr) {
     }
 }
 
-void Menu::handleRatingMenu(RatingManager& ratingMgr, MovieManager& movieMgr, UserManager& userMgr) {
+void Menu::runRating(RatingManager& rm, MovieManager& mm, UserManager& um) {
     while (true) {
-        subMenu(MovieConstants::TITLE_RATING, MovieConstants::OPT_RATING);
+        subMenu(Rating::TITLE, Rating::OPTIONS);
         int subChoice = readChoice();
-        if (subChoice == MovieConstants::MENU_BACK) {
+        if (subChoice == BACK) {
             break;
         }
         switch (subChoice) {
-            case MovieConstants::RAT_ADD:
-                RatingHandler::add(ratingMgr, movieMgr, userMgr);
+            case Rating::ADD:
+                RatingOp::add(rm, mm, um);
                 break;
-            case MovieConstants::RAT_LIST:
-                RatingHandler::print(ratingMgr);
+            case Rating::LIST:
+                RatingOp::list(rm);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";
@@ -403,22 +400,22 @@ void Menu::handleRatingMenu(RatingManager& ratingMgr, MovieManager& movieMgr, Us
     }
 }
 
-void Menu::handleRecommendationMenu(Recommender& rec) {
+void Menu::runRec(Recommender& rec) {
     while (true) {
-        subMenu(MovieConstants::TITLE_REC, MovieConstants::OPT_REC);
+        subMenu(Rec::TITLE, Rec::OPTIONS);
         int subChoice = readChoice();
-        if (subChoice == MovieConstants::MENU_BACK) {
+        if (subChoice == BACK) {
             break;
         }
         switch (subChoice) {
-            case MovieConstants::REC_SIM:
-                RecommendationHandler::similarUsers(rec);
+            case Rec::SIM:
+                RecOp::simUsers(rec);
                 break;
-            case MovieConstants::REC_USER:
-                RecommendationHandler::recommendByUser(rec);
+            case Rec::USER:
+                RecOp::byUser(rec);
                 break;
-            case MovieConstants::REC_GENRE:
-                RecommendationHandler::recommendByGenre(rec);
+            case Rec::GENRE:
+                RecOp::byGenre(rec);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";
@@ -427,34 +424,34 @@ void Menu::handleRecommendationMenu(Recommender& rec) {
     }
 }
 
-void Menu::handleStatisticsMenu(Statistics& stats) {
+void Menu::runStat(Statistics& stats) {
     while (true) {
-        subMenu(MovieConstants::TITLE_STAT, MovieConstants::OPT_STAT);
+        subMenu(Stat::TITLE, Stat::OPTIONS);
         int subChoice = readChoice();
-        if (subChoice == MovieConstants::MENU_BACK) {
+        if (subChoice == BACK) {
             break;
         }
         switch (subChoice) {
-            case MovieConstants::STAT_ALL:
-                StatisticsHandler::overall(stats);
+            case Stat::ALL:
+                StatOp::overall(stats);
                 break;
-            case MovieConstants::STAT_TOP_RATE:
-                StatisticsHandler::topByRating(stats);
+            case Stat::TOP_RATE:
+                StatOp::topRate(stats);
                 break;
-            case MovieConstants::STAT_TOP_COUNT:
-                StatisticsHandler::topByRatingCount(stats);
+            case Stat::TOP_COUNT:
+                StatOp::topCount(stats);
                 break;
-            case MovieConstants::STAT_BY_GENRE:
-                StatisticsHandler::byGenre(stats);
+            case Stat::BY_GENRE:
+                StatOp::byGenre(stats);
                 break;
-            case MovieConstants::STAT_BY_YEAR:
-                StatisticsHandler::byYear(stats);
+            case Stat::BY_YEAR:
+                StatOp::byYear(stats);
                 break;
-            case MovieConstants::STAT_TOP_USERS:
-                StatisticsHandler::topUsers(stats);
+            case Stat::TOP_USERS:
+                StatOp::topUsers(stats);
                 break;
-            case MovieConstants::STAT_USER_DETAILS:
-                StatisticsHandler::userStats(stats);
+            case Stat::USER_DETAIL:
+                StatOp::userDetail(stats);
                 break;
             default:
                 cout << "잘못된 선택입니다.\n";
@@ -463,23 +460,22 @@ void Menu::handleStatisticsMenu(Statistics& stats) {
     }
 }
 
-// Load/Save summaries unchanged
-void Menu::showLoadSummary(int movieCount, int userCount, int ratingCount) {
+void Menu::showLoadSummary(int movies, int users, int ratings) {
     cout << "\n========================================\n";
     cout << "          데이터 로드 완료\n";
     cout << "========================================\n";
-    cout << "  영화 데이터     : " << movieCount << "건\n";
-    cout << "  사용자 데이터   : " << userCount << "건\n";
-    cout << "  평점 데이터     : " << ratingCount << "건\n";
+    cout << "  영화 데이터     : " << movies << "건\n";
+    cout << "  사용자 데이터   : " << users << "건\n";
+    cout << "  평점 데이터     : " << ratings << "건\n";
     cout << "========================================\n";
 }
 
-void Menu::showSaveSummary(int movieCount, int userCount, int ratingCount) {
+void Menu::showSaveSummary(int movies, int users, int ratings) {
     cout << "\n========================================\n";
     cout << "       데이터 저장 및 프로그램 종료\n";
     cout << "========================================\n";
-    cout << "  영화 데이터     : " << movieCount << "건 저장 완료\n";
-    cout << "  사용자 데이터   : " << userCount << "건 저장 완료\n";
-    cout << "  평점 데이터     : " << ratingCount << "건 저장 완료\n";
+    cout << "  영화 데이터     : " << movies << "건 저장 완료\n";
+    cout << "  사용자 데이터   : " << users << "건 저장 완료\n";
+    cout << "  평점 데이터     : " << ratings << "건 저장 완료\n";
     cout << "========================================\n";
 }

@@ -1,6 +1,9 @@
-// 시스템 내 영화에 대한 사용자 평점 데이터를 관리하기 위해 설계된 클래스
+// 평점 CRUD 및 CSV 영속화
 
 #include "RatingManager.h"
+#include "MovieConstant.h"
+
+using namespace MC::Score;
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -12,30 +15,29 @@ using namespace std;
 using Clock = chrono::high_resolution_clock;
 using Ms = chrono::microseconds;
 
-// 신규 평점을 시스템에 등록하기 위해 제약조건과 데이터 유효성을 검증하고 저장함
-pair<RatingResult, double> RatingManager::addRating(const string& userName, const string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager) {
+pair<RatingResult, double> RatingManager::addRating(const string& user, const string& title, double score,
+                                                    MovieManager& mm, UserManager& um) {
     auto start = Clock::now();
 
-    const User* user = userManager.findUserByName(userName);
-    if (!user) {
+    const User* found = um.findUserByName(user);
+    if (!found) {
         auto end = Clock::now();
         return {RatingResult::USER_NOT_FOUND, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
-    Movie* movie = movieManager.findMovieByTitle(movieTitle);
+    Movie* movie = mm.findMovieByTitle(title);
     if (!movie) {
         auto end = Clock::now();
         return {RatingResult::MOVIE_NOT_FOUND, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
-    if (score < MovieConstants::MIN_RATE || score > MovieConstants::MAX_RATE) {
+    if (score < MIN || score > MAX) {
         auto end = Clock::now();
         return {RatingResult::INVALID_SCORE, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
-    // 중복 평가 체크
     for (const auto& r : ratings) {
-        if (r.getUserName() == userName && r.getMovieTitle() == movie->getTitle()) {
+        if (r.getUserName() == user && r.getMovieTitle() == movie->getTitle()) {
             auto end = Clock::now();
             return {RatingResult::DUPLICATE_RATING, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
         }
@@ -46,20 +48,18 @@ pair<RatingResult, double> RatingManager::addRating(const string& userName, cons
         return {RatingResult::INVALID_SCORE, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
     }
 
-    // 사용자 이름과 영화 제목은 내부 저장된 정규값을 사용
-    ratings.push_back(Rating(user->getUserName(), movie->getTitle(), score));
-    
+    ratings.push_back(Rating(found->getUserName(), movie->getTitle(), score));
+
     auto end = Clock::now();
     double ms = chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 
     return {RatingResult::SUCCESS, ms};
 }
 
-// 특정 영화에 등록된 모든 평점을 포맷팅된 문자열 목록으로 반환하여 외부에 제공하기 위함
-vector<string> RatingManager::getRatingsByMovieFormatted(const string& movieTitle) const {
+vector<string> RatingManager::getRatingsByMovieFormatted(const string& title) const {
     vector<string> lines;
     for (const auto& r : ratings) {
-        if (r == movieTitle) {
+        if (r == title) {
             stringstream ss;
             ss << " " << r;
             lines.push_back(ss.str());
@@ -68,10 +68,10 @@ vector<string> RatingManager::getRatingsByMovieFormatted(const string& movieTitl
     return lines;
 }
 
-void RatingManager::mergeRatingsToMovies(MovieManager& movieManager) const {
+void RatingManager::mergeRatingsToMovies(MovieManager& mm) const {
     std::set<string> resetTitles;
     for (const auto& r : ratings) {
-        Movie* movie = movieManager.findMovieByTitle(r.getMovieTitle());
+        Movie* movie = mm.findMovieByTitle(r.getMovieTitle());
         if (!movie) {
             continue;
         }
@@ -82,7 +82,6 @@ void RatingManager::mergeRatingsToMovies(MovieManager& movieManager) const {
     }
 }
 
-// 파일에서 평점 데이터를 메모리로 불러오기 위함
 double RatingManager::loadFromFile() {
     ratings.clear();
     auto start = Clock::now();
@@ -107,7 +106,7 @@ double RatingManager::loadFromFile() {
                     ratings.push_back(Rating(name, title, stod(ratingStr)));
                     count++;
                 } catch (const exception &e) {
-                    // skip malformed
+                    // 형식이 잘못된 평점 데이터는 스킵 (CSV 파싱 오류 방지)
                 }
             }
         }
@@ -119,7 +118,6 @@ double RatingManager::loadFromFile() {
     return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }
 
-// 메모리의 평점 데이터를 파일에 안전하게 보관하기 위함
 double RatingManager::saveToFile() {
     auto start = Clock::now();
     try {

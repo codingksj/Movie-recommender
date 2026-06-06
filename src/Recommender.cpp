@@ -1,4 +1,4 @@
-// 사용자에게 맞춤형 영화 리스트를 제공하여 만족도를 높이기 위해 설계된 추천 엔진 클래스
+// 협업 필터링·장르 기반 추천 엔진
 
 #include "Recommender.h"
 #include <iostream>
@@ -15,72 +15,70 @@
 
 using namespace std;
 
-// 특정 사용자의 선호도를 파악하기 위해 시스템에 기록된 모든 평점 중 해당 사용자의 것만 필터링하여 반환함
-vector<Rating> Recommender::getUserRatings(const string& userName) const {
+vector<Rating> Recommender::getUserRatings(const string& user) const {
     vector<Rating> result;
-    string searchName = Base::normalizeString(userName);
-    for (const auto& r : ratingManager.getRatings()) {
-        if (Base::normalizeString(r.getUserName()) == searchName) {
+    string key = Base::normalizeString(user);
+    for (const auto& r : rm.getRatings()) {
+        if (Base::normalizeString(r.getUserName()) == key) {
             result.push_back(r);
         }
     }
     return result;
 }
 
-// 코사인 유사도를 이용하여 두 사용자의 취향이 얼마나 비슷한지 정량화하기 위함
-double Recommender::calculateSimilarity(const vector<Rating>& ratingsA,
-                                         const vector<Rating>& ratingsB) const {
-    unordered_map<string, double> ratingsMapA;
-    ratingsMapA.reserve(ratingsA.size());
+// 두 사용자의 평점 벡터 간 코사인 유사도를 계산하여
+// 사용자 간 영화 취향 유사성을 측정 (@return 탐상 사용자 검색 미생)
+double Recommender::calculateSimilarity(const vector<Rating>& a, const vector<Rating>& b) const {
+    unordered_map<string, double> mapA;
+    mapA.reserve(a.size());
     double magA = 0.0;
-    for (const auto& r : ratingsA) {
-        ratingsMapA[r.getMovieTitle()] = r.getUserRating();
+    for (const auto& r : a) {
+        mapA[r.getMovieTitle()] = r.getUserRating();
         magA += r.getUserRating() * r.getUserRating();
     }
 
-    unordered_map<string, double> ratingsMapB;
-    ratingsMapB.reserve(ratingsB.size());
+    unordered_map<string, double> mapB;
+    mapB.reserve(b.size());
     double magB = 0.0;
-    for (const auto& r : ratingsB) {
-        ratingsMapB[r.getMovieTitle()] = r.getUserRating();
+    for (const auto& r : b) {
+        mapB[r.getMovieTitle()] = r.getUserRating();
         magB += r.getUserRating() * r.getUserRating();
     }
 
-    double dotProduct = 0.0;
-    for (const auto& [movieTitle, scoreA] : ratingsMapA) {
-        auto it = ratingsMapB.find(movieTitle);
-        if (it != ratingsMapB.end()) {
-            dotProduct += scoreA * it->second;
+    double dot = 0.0;
+    for (const auto& [title, scoreA] : mapA) {
+        auto it = mapB.find(title);
+        if (it != mapB.end()) {
+            dot += scoreA * it->second;
         }
     }
 
-    if (dotProduct == 0.0 || magA == 0.0 || magB == 0.0) {
+    if (dot == 0.0 || magA == 0.0 || magB == 0.0) {
         return 0.0;
     }
 
-    return dotProduct / (sqrt(magA) * sqrt(magB));
+    return dot / (sqrt(magA) * sqrt(magB));
 }
 
-// 대상 사용자와 취향이 비슷한 이웃 사용자들을 찾아내어 협업 필터링의 기초 데이터를 구성하기 위함
-vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUser, int limit) const {
-    vector<Rating> targetRatings = getUserRatings(targetUser);
-    if (targetRatings.empty()) { return {}; }
+vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, int limit) const {
+    vector<Rating> base = getUserRatings(user);
+    if (base.empty()) { return {}; }
 
     vector<pair<string, double>> similarities;
-    for (const auto& user : userManager.getUsers()) {
-        if (user.getUserName() == targetUser) { continue; }
+    for (const auto& u : um.getUsers()) {
+        if (u.getUserName() == user) { continue; }
 
-        vector<Rating> otherRatings = getUserRatings(user.getUserName());
-        double sim = calculateSimilarity(targetRatings, otherRatings);
+        vector<Rating> other = getUserRatings(u.getUserName());
+        double sim = calculateSimilarity(base, other);
         if (sim > 0.0) {
-            similarities.push_back({user.getUserName(), sim});
+            similarities.push_back({u.getUserName(), sim});
         }
     }
 
     sort(similarities.begin(), similarities.end(),
-         [](const pair<string, double>& a, const pair<string, double>& b) {
-             if (a.second == b.second) { return a.first < b.first; }
-             return a.second > b.second;
+         [](const pair<string, double>& x, const pair<string, double>& y) {
+             if (x.second == y.second) { return x.first < y.first; }
+             return x.second > y.second;
          });
 
     if (limit > 0 && (int)similarities.size() > limit) {
@@ -89,61 +87,61 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& targetUs
     return similarities;
 }
 
-// 이웃 사용자들의 평점 데이터를 바탕으로 대상 사용자가 보지 않은 영화의 예상 점수를 계산하기 위함 (헬퍼 함수)
-map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims, 
-                                                    const set<string>& watchedMovies, size_t actualK) {
+// 유사 사용자들의 평점을 가중 폈균으로 계산하여
+// 타격 사용자의 미시청 영화 대한 예상 점수 도출 (코라보레이션 추천)
+// @param k 고려할 유사 사용자 수 @param watched 미샜청 영화 유무
+map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims,
+                                                    const set<string>& watched, size_t k) {
     map<string, double> movieScores;
-    map<string, double> sumSims; // 영화별 유사도 합계 저장을 위함
+    map<string, double> sumSims;
 
-    for (size_t i = 0; i < actualK; ++i) {
-        string neighborName = userSims[i].first;
+    for (size_t i = 0; i < k; ++i) {
+        string neighbor = userSims[i].first;
         double sim = userSims[i].second;
-        vector<Rating> neighborRatings = getUserRatings(neighborName);
+        vector<Rating> neighborRatings = getUserRatings(neighbor);
 
         for (const auto& r : neighborRatings) {
-            if (watchedMovies.find(r.getMovieTitle()) == watchedMovies.end()) {
+            if (watched.find(r.getMovieTitle()) == watched.end()) {
                 movieScores[r.getMovieTitle()] += sim * r.getUserRating();
                 sumSims[r.getMovieTitle()] += sim;
             }
         }
     }
 
-    // 유사도 가중치 합으로 나누어 정규화 (가중 평균 계산)
-    for (auto& pair : movieScores) {
-        if (sumSims[pair.first] > 0.0) {
-            pair.second /= sumSims[pair.first];
+    for (auto& entry : movieScores) {
+        if (sumSims[entry.first] > 0.0) {
+            entry.second /= sumSims[entry.first];
         }
     }
 
     return movieScores;
 }
 
-// 대상 사용자와 유사한 취향을 가진 K명의 이웃 데이터를 종합하여 가장 높은 예상 점수를 받은 N개의 영화를 추천하기 위함
-vector<string> Recommender::recommend(const string& targetUser, int K, int N, const string& genre) {
-    vector<Rating> targetRatings = getUserRatings(targetUser);
-    if (targetRatings.empty()) { return {}; }
+vector<string> Recommender::recommend(const string& user, int k, int n, const string& genre) {
+    vector<Rating> base = getUserRatings(user);
+    if (base.empty()) { return {}; }
 
-    vector<pair<string, double>> userSims = getSimilarUsers(targetUser, 0);
+    vector<pair<string, double>> userSims = getSimilarUsers(user, 0);
     if (userSims.empty()) { return {}; }
 
-    size_t actualK = min((size_t)K, userSims.size());
+    size_t neighbors = min((size_t)k, userSims.size());
 
-    set<string> watchedMovies;
-    for (const auto& r : targetRatings) { watchedMovies.insert(r.getMovieTitle()); }
+    set<string> watched;
+    for (const auto& r : base) { watched.insert(r.getMovieTitle()); }
 
-    map<string, double> movieScores = predictMovieScores(userSims, watchedMovies, actualK);
+    map<string, double> movieScores = predictMovieScores(userSims, watched, neighbors);
 
     vector<pair<string, double>> candidates;
-    vector<Movie> genreFilteredMovies;
+    vector<Movie> genreFiltered;
     if (!genre.empty()) {
-        genreFilteredMovies = filterByGenre(genre);
+        genreFiltered = filterByGenre(genre);
     }
 
-    for (const auto& pair : movieScores) {
+    for (const auto& entry : movieScores) {
         if (!genre.empty()) {
             bool genreMatch = false;
-            for (const auto& m : genreFilteredMovies) {
-                if (m.getTitle() == pair.first) {
+            for (const auto& m : genreFiltered) {
+                if (m.getTitle() == entry.first) {
                     genreMatch = true;
                     break;
                 }
@@ -152,25 +150,24 @@ vector<string> Recommender::recommend(const string& targetUser, int K, int N, co
                 continue;
             }
         }
-        candidates.push_back(pair);
+        candidates.push_back(entry);
     }
 
     if (candidates.empty()) { return {}; }
 
     sort(candidates.begin(), candidates.end(),
-         [](const pair<string, double>& a, const pair<string, double>& b) {
-             if (a.second == b.second) { return a.first < b.first; }
-             return a.second > b.second;
+         [](const pair<string, double>& x, const pair<string, double>& y) {
+             if (x.second == y.second) { return x.first < y.first; }
+             return x.second > y.second;
          });
 
     vector<string> result;
-    for (int i = 0; i < min(N, (int)candidates.size()); ++i) {
+    for (int i = 0; i < min(n, (int)candidates.size()); ++i) {
         result.push_back(candidates[i].first);
     }
     return result;
 }
 
-// 두 영화 간의 메타데이터(장르)가 얼마나 일치하는지 판별하여 내용 기반 추천의 기준을 마련하기 위함
 double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) const {
     if (m1.getGenre() == "unknown" || m2.getGenre() == "unknown" ||
         m1.getGenre().empty() || m2.getGenre().empty()) {
@@ -184,14 +181,13 @@ double Recommender::calculateGenreSimilarity(const Movie& m1, const Movie& m2) c
     return (g1 == g2) ? 1.0 : 0.0;
 }
 
-// 장르 문자열(대소문자 무시)이 정확히 일치하는 영화들만 반환하는 헬퍼
 vector<Movie> Recommender::filterByGenre(const string& genre) const {
     vector<Movie> result;
     if (genre.empty()) { return result; }
     string g = genre;
     transform(g.begin(), g.end(), g.begin(), ::tolower);
 
-    const auto& movies = movieManager.getMovies();
+    const auto& movies = mm.getMovies();
     copy_if(movies.begin(), movies.end(), back_inserter(result),
         [&g](const Movie& m) {
             string mg = m.getGenre();
@@ -201,35 +197,34 @@ vector<Movie> Recommender::filterByGenre(const string& genre) const {
     return result;
 }
 
-// 사용자가 관심을 가지는 특정 영화와 유사한 분위기/내용(장르)을 가진 영화 목록을 제공하기 위함
-vector<string> Recommender::recommendByGenre(const string& targetMovieTitle, int N) const {
-    const Movie* targetMovie = movieManager.findMovieByTitle(targetMovieTitle);
-    if (!targetMovie) { return {}; }
+vector<string> Recommender::recommendByGenre(const string& title, int n) const {
+    const Movie* base = mm.findMovieByTitle(title);
+    if (!base) { return {}; }
 
-    vector<Movie> sameGenre = filterByGenre(targetMovie->getGenre());
+    vector<Movie> sameGenre = filterByGenre(base->getGenre());
     vector<pair<Movie, double>> candidates;
-    string targetTitleLower = Base::normalizeString(targetMovie->getTitle());
+    string baseKey = Base::normalizeString(base->getTitle());
     for (const auto& m : sameGenre) {
-        if (Base::normalizeString(m.getTitle()) == targetTitleLower) { continue; }
-        double sim = calculateGenreSimilarity(*targetMovie, m);
+        if (Base::normalizeString(m.getTitle()) == baseKey) { continue; }
+        double sim = calculateGenreSimilarity(*base, m);
         candidates.push_back({m, sim});
     }
 
-    sort(candidates.begin(), candidates.end(), [](const pair<Movie, double>& a, const pair<Movie, double>& b) {
-        if (a.second != b.second) { return a.second > b.second; }
-        if (a.first.getAverageRating() != b.first.getAverageRating()) { return a.first.getAverageRating() > b.first.getAverageRating(); }
-        return a.first.getTitle() < b.first.getTitle();
+    sort(candidates.begin(), candidates.end(), [](const pair<Movie, double>& x, const pair<Movie, double>& y) {
+        if (x.second != y.second) { return x.second > y.second; }
+        if (x.first.getAverageRating() != y.first.getAverageRating()) { return x.first.getAverageRating() > y.first.getAverageRating(); }
+        return x.first.getTitle() < y.first.getTitle();
     });
 
     vector<string> result;
     int count = 0;
-    for (const auto& pair : candidates) {
-        if (pair.second > 0.0) {
+    for (const auto& entry : candidates) {
+        if (entry.second > 0.0) {
             stringstream ss;
-            ss << pair.first.getTitle() << " (장르: " << pair.first.getGenre() 
-               << ", 평점: " << fixed << setprecision(1) << pair.first.getAverageRating() << ")";
+            ss << entry.first.getTitle() << " (장르: " << entry.first.getGenre()
+               << ", 평점: " << fixed << setprecision(1) << entry.first.getAverageRating() << ")";
             result.push_back(ss.str());
-            if (++count >= N) { break; }
+            if (++count >= n) { break; }
         }
     }
     return result;

@@ -1,19 +1,21 @@
-// 평점 클래스: 사용자-영화 관계와 점수 검증 담당
+// 평점 도메인 모델 — 사용자·영화·점수 보관
 
 #include "Rating.h"
 #include "MovieConstant.h"
+
+using namespace MC::Score;
 #include <iostream>
 
 using std::string;
 using std::cout;
 
-Rating::Rating(string userName, string movieTitle, double userRating)
-    : Base(movieTitle) {
-    this->userName = Base::validateString(userName, "유저 이름");
-    if (userRating < MovieConstants::MIN_RATE || userRating > MovieConstants::MAX_RATE) {
-        this->userRating = MovieConstants::MIN_RATE;
+Rating::Rating(string user, string title, double score)
+    : Base(title) {
+    this->userName = Base::validateString(user, "유저 이름");
+    if (score < MIN || score > MAX) {
+        this->userRating = MIN;
     } else {
-        this->userRating = userRating;
+        this->userRating = score;
     }
 }
 

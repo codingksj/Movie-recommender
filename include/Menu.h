@@ -1,4 +1,4 @@
-// 사용자 입출력 및 메뉴 제어를 분리하여 단일 책임 원칙을 준수하기 위함
+// CLI 메뉴 렌더링 및 사용자 입력 처리
 
 #pragma once
 #include <string>
@@ -23,50 +23,50 @@ public:
     static int readChoice();
     static double readDouble();
 
-    static void handleMovieMenu(MovieManager& movieMgr);
-    static void handleUserMenu(UserManager& userMgr);
-    static void handleRatingMenu(RatingManager& ratingMgr, MovieManager& movieMgr, UserManager& userMgr);
-    static void handleRecommendationMenu(Recommender& rec);
-    static void handleStatisticsMenu(Statistics& stats);
+    static void runMovie(MovieManager& mm);
+    static void runUser(UserManager& um);
+    static void runRating(RatingManager& rm, MovieManager& mm, UserManager& um);
+    static void runRec(Recommender& rec);
+    static void runStat(Statistics& stats);
 
-    static void showLoadSummary(int movieCount, int userCount, int ratingCount);
-    static void showSaveSummary(int movieCount, int userCount, int ratingCount);
+    static void showLoadSummary(int movies, int users, int ratings);
+    static void showSaveSummary(int movies, int users, int ratings);
 
 private:
-    class MovieHandler {
+    class MovieOp {
     public:
-        static void add(MovieManager& manager);
-        static void search(MovieManager& manager);
-        static void print(MovieManager& manager);
+        static void add(MovieManager& mm);
+        static void search(MovieManager& mm);
+        static void list(MovieManager& mm);
     };
 
-    class UserHandler {
+    class UserOp {
     public:
-        static void add(UserManager& manager);
-        static void print(UserManager& manager);
+        static void add(UserManager& um);
+        static void list(UserManager& um);
     };
 
-    class RatingHandler {
+    class RatingOp {
     public:
-        static void add(RatingManager& rMgr, MovieManager& mMgr, UserManager& uMgr);
-        static void print(RatingManager& manager);
+        static void add(RatingManager& rm, MovieManager& mm, UserManager& um);
+        static void list(RatingManager& rm);
     };
 
-    class RecommendationHandler {
+    class RecOp {
     public:
-        static void similarUsers(Recommender& manager);
-        static void recommendByUser(Recommender& manager);
-        static void recommendByGenre(Recommender& manager);
+        static void simUsers(Recommender& rec);
+        static void byUser(Recommender& rec);
+        static void byGenre(Recommender& rec);
     };
 
-    class StatisticsHandler {
+    class StatOp {
     public:
-        static void overall(Statistics& manager);
-        static void topByRating(Statistics& manager);
-        static void topByRatingCount(Statistics& manager);
-        static void byGenre(Statistics& manager);
-        static void byYear(Statistics& manager);
-        static void topUsers(Statistics& manager);
-        static void userStats(Statistics& manager);
+        static void overall(Statistics& stats);
+        static void topRate(Statistics& stats);
+        static void topCount(Statistics& stats);
+        static void byGenre(Statistics& stats);
+        static void byYear(Statistics& stats);
+        static void topUsers(Statistics& stats);
+        static void userDetail(Statistics& stats);
     };
 };

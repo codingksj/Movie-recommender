@@ -1,4 +1,4 @@
-// 사용자 클래스: 이름과 이메일 보관 및 출력
+// 사용자 도메인 모델 — 이름·이메일 보관
 
 #include "User.h"
 #include <iostream>
@@ -6,9 +6,9 @@
 using std::string;
 using std::cout;
 
-User::User(const string& userName, const string& userEmail)
-    : Base(userName) {
-    this->userEmail = Base::validateString(userEmail, "이메일");
+User::User(const string& name, const string& email)
+    : Base(name) {
+    this->userEmail = Base::validateString(email, "이메일");
 }
 
 string  User::getUserName()     const { return Base::name; }

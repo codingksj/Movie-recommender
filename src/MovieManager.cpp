@@ -1,6 +1,9 @@
-// 시스템 내 영화 데이터를 추가, 검색 및 관리하기 위해 설계된 클래스
+// 영화 CRUD, 검색·정렬 및 CSV 영속화
 
 #include "MovieManager.h"
+#include "MovieConstant.h"
+
+using namespace MC::Sort;
 #include <iostream>
 #include <exception>
 #include <chrono>
@@ -11,10 +14,10 @@
 #include <iterator>
 
 using namespace std;
+using namespace MC::Ui;
 using Clock = chrono::high_resolution_clock;
 using Ms = chrono::microseconds;
 
-// 신규 영화를 시스템에 등록하기 위해 중복 검사 후 데이터를 추가함
 pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, const string& genre) {
     auto start = Clock::now();
     try {
@@ -33,7 +36,6 @@ pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, 
     return {MovieResult::SUCCESS, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
 }
 
-// 주어진 쿼리로 영화 제목을 검색하고 포맷팅된 문자열 목록을 반환함
 pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& query, string& outQuery) const {
     string queryLower = query;
     for (char &c : queryLower) { c = tolower(c); }
@@ -91,8 +93,7 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
     return {lines, ms};
 }
 
-// 전체 영화 목록을 요청된 기준에 따라 정렬하고 포맷팅하여 반환함
-pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoice, string& outSortName) const {
+pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int choice, string& sortName) const {
     auto start = Clock::now();
     vector<string> lines;
     
@@ -103,38 +104,38 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
     }
     
     vector<Movie> sortedMovies = movies;
-    outSortName = MovieConstants::OPT_SORT[2]; // 기본값: 제목순
-    
-    switch (sortChoice) {
-        case MovieConstants::SORT_RATE:
-            outSortName = MovieConstants::OPT_SORT[0];
+    sortName = OPTIONS[TITLE - 1];
+
+    switch (choice) {
+        case RATE:
+            sortName = OPTIONS[0];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
                 if (a.getAverageRating() != b.getAverageRating()) { return a.getAverageRating() > b.getAverageRating(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
-        case MovieConstants::SORT_CNT:
-            outSortName = MovieConstants::OPT_SORT[1];
+        case CNT:
+            sortName = OPTIONS[1];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
                 if (a.getRatingCount() != b.getRatingCount()) { return a.getRatingCount() > b.getRatingCount(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
-        case MovieConstants::SORT_GENRE:
-            outSortName = MovieConstants::OPT_SORT[3];
+        case GENRE:
+            sortName = OPTIONS[3];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
                 if (a.getGenre() != b.getGenre()) { return a.getGenre() < b.getGenre(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
-        case MovieConstants::SORT_YEAR:
-            outSortName = MovieConstants::OPT_SORT[4];
+        case YEAR:
+            sortName = OPTIONS[4];
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
                 if (a.getReleaseYear() != b.getReleaseYear()) { return a.getReleaseYear() > b.getReleaseYear(); }
                 return a.getTitle() < b.getTitle();
             });
             break;
-        case MovieConstants::SORT_TITLE:
+        case TITLE:
         default:
             sort(sortedMovies.begin(), sortedMovies.end(), [](const Movie &a, const Movie &b) {
                 return a.getTitle() < b.getTitle();
@@ -164,7 +165,6 @@ pair<vector<string>, double> MovieManager::getSortedMoviesFormatted(int sortChoi
     return {lines, ms};
 }
 
-// 제목으로 특정 영화 포인터 검색 (외부에서 영화 유무 확인 등을 위함)
 Movie* MovieManager::findMovieByTitle(const string &title) {
     string titleLower = Base::normalizeString(title);
     for (auto &m : movies) {
@@ -186,7 +186,6 @@ const Movie* MovieManager::findMovieByTitle(const string &title) const {
 }
 
 
-// 파일에서 영화 정보를 메모리로 불러오기 위함
 double MovieManager::loadFromFile() {
     movies.clear();
     auto start = Clock::now();
@@ -222,7 +221,6 @@ double MovieManager::loadFromFile() {
     return chrono::duration_cast<Ms>(end - start).count() / 1000.0;
 }
 
-// 메모리의 영화 정보를 파일에 안전하게 보관하기 위함
 double MovieManager::saveToFile() {
     auto start = Clock::now();
     try {

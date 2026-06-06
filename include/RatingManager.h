@@ -17,10 +17,11 @@ private:
     vector<Rating> ratings;
 
 public:
-    pair<RatingResult, double> addRating(const string& userName, const string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager);
-    vector<string> getRatingsByMovieFormatted(const string& movieTitle) const;
+    pair<RatingResult, double> addRating(const string& user, const string& title, double score,
+                                         MovieManager& mm, UserManager& um);
+    vector<string> getRatingsByMovieFormatted(const string& title) const;
     const vector<Rating>& getRatings() const { return ratings; }
-    void mergeRatingsToMovies(MovieManager& movieManager) const;
+    void mergeRatingsToMovies(MovieManager& mm) const;
 
     double loadFromFile() override;
     double saveToFile() override;

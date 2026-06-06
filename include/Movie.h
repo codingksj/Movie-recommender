@@ -13,7 +13,7 @@ private:
 
 public:
     Movie();
-    Movie(const string& title, int year = MovieConstants::DATA_MAX_YEAR, const string& genre = "unknown");
+    Movie(const string& title, int year = MC::Dataset::MAX_YEAR, const string& genre = "unknown");
     Movie(const string& title, int year, const string& genre, double totalRating, int ratingCount);
 
     string      getTitle()           const;

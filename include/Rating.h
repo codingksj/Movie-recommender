@@ -9,7 +9,7 @@ private:
     double  userRating;
 
 public:
-    Rating(string userName, string movieTitle, double userRating);
+    Rating(string user, string title, double score);
 
     string     getUserName()        const;
     string     getMovieTitle()      const;
