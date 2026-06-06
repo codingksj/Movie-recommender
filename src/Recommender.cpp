@@ -27,7 +27,7 @@ vector<Rating> Recommender::getUserRatings(const string& user) const {
 }
 
 // 두 사용자의 평점 벡터 간 코사인 유사도를 계산하여
-// 사용자 간 영화 취향 유사성을 측정 (@return 탐상 사용자 검색 미생)
+// 사용자 간 영화 취향 유사성을 측정
 double Recommender::calculateSimilarity(const vector<Rating>& a, const vector<Rating>& b) const {
     unordered_map<string, double> mapA;
     mapA.reserve(a.size());
@@ -87,9 +87,9 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, in
     return similarities;
 }
 
-// 유사 사용자들의 평점을 가중 폈균으로 계산하여
-// 타격 사용자의 미시청 영화 대한 예상 점수 도출 (코라보레이션 추천)
-// @param k 고려할 유사 사용자 수 @param watched 미샜청 영화 유무
+// 유사 사용자들의 평점을 가중 평균으로 계산하여
+// 타겟 사용자의 미시청 영화에 대한 예상 점수 도출 (협업 필터링 추천)
+// @param k 고려할 유사 사용자 수 @param watched 미시청 영화 유무
 map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims,
                                                     const set<string>& watched, size_t k) {
     map<string, double> movieScores;

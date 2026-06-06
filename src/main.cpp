@@ -47,7 +47,7 @@ static size_t readCount(const string& prompt, size_t defaultValue, size_t maxVal
 
         std::stringstream ss(input);
         int value;
-        if (ss >> value && value > 0 && value <= maxValue) {
+        if (ss >> value && value > 0 && static_cast<size_t>(value) <= maxValue) {
             return static_cast<size_t>(value);
         }
 

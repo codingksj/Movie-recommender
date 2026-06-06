@@ -57,6 +57,10 @@ void Movie::mergeRating(double r) {
     ratingCount++;
 }
 
+bool Movie::operator>(const Movie& other) const {
+    return getAverageRating() > other.getAverageRating();
+}
+
 bool Movie::operator==(const Movie& other) const {
     return Base::operator==(other)
         && genre == other.genre

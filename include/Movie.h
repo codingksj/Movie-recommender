@@ -12,6 +12,7 @@ private:
     int         ratingCount;
 
 public:
+    using Base::operator==;
     Movie();
     Movie(const string& title, int year = MC::Dataset::MAX_YEAR, const string& genre = "unknown");
     Movie(const string& title, int year, const string& genre, double totalRating, int ratingCount);
@@ -21,7 +22,8 @@ public:
     int         getReleaseYear()     const;
     double      getAverageRating()   const;
     int         getRatingCount()     const;
-    bool        addRating(double r);    void        resetRatingAggregate();
+    bool        addRating(double r);
+    void        resetRatingAggregate();
     void        mergeRating(double r);
     bool operator>(const Movie& other) const;
     bool operator==(const Movie& other) const;

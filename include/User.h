@@ -8,6 +8,7 @@ private:
     string      userEmail;
 
 public:
+    using Base::operator==;
     User(const string& name, const string& email);
 
     string      getUserName()       const;
