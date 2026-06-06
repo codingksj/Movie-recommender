@@ -1,4 +1,4 @@
-// 공통 데이터의 기준이 되는 Base 클래스
+// 공통 베이스 클래스: 이름 관리, 문자열 검증 및 정규화 제공
 
 #include "Base.h"
 #include "MovieConstant.h"
@@ -6,21 +6,15 @@
 using std::string;
 using std::cout;
 
-// Use MAX_STR_LEN from MovieConstants
-
-// 기본 생성자
+// 기본 생성자/소멸자 및 문자열 유효성 검사
 Base::Base() : name("") {}
 
-// 이름을 받는 생성자
 Base::Base(string name) : name(name) {}
 
-// 가상 소멸자
 Base::~Base() {}
 
-// 이름 반환 함수
 string Base::getName() const { return name; }
 
-// 입력 문자열 길이 유효성 검사 함수
 string Base::validateString(const string& val, const string& fieldName) {
     if (val.length() > MovieConstants::MAX_STR_LEN) {
         cout << fieldName << "이(가) 너무 깁니다! (입력: " << val.length() << "자)" << '\n';
@@ -29,7 +23,6 @@ string Base::validateString(const string& val, const string& fieldName) {
     return val;
 }
 
-// 문자열을 소문자로 변환하여 대소문자 무시 비교에 사용
 string Base::normalizeString(const string& val) {
     string result = val;
     for (char& c : result) {
@@ -38,12 +31,11 @@ string Base::normalizeString(const string& val) {
     return result;
 }
 
-// 대소문자 무시 동등 비교 연산자 (Base 객체 간)
+// 대소문자 무시 비교 연산자
 bool Base::operator==(const Base& other) const {
     return (*this) == other.name;
 }
 
-// 대소문자 무시 동등 비교 연산자 (문자열 값과 비교)
 bool Base::operator==(const string& otherName) const {
     string lhs = normalizeString(name);
     string rhs = normalizeString(otherName);

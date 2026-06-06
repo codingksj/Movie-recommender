@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <chrono>
+#include <set>
 
 using namespace std;
 using Clock = chrono::high_resolution_clock;
@@ -65,6 +66,20 @@ vector<string> RatingManager::getRatingsByMovieFormatted(const string& movieTitl
         }
     }
     return lines;
+}
+
+void RatingManager::mergeRatingsToMovies(MovieManager& movieManager) const {
+    std::set<string> resetTitles;
+    for (const auto& r : ratings) {
+        Movie* movie = movieManager.findMovieByTitle(r.getMovieTitle());
+        if (!movie) {
+            continue;
+        }
+        if (resetTitles.insert(movie->getTitle()).second) {
+            movie->resetRatingAggregate();
+        }
+        movie->mergeRating(r.getUserRating());
+    }
 }
 
 // 파일에서 평점 데이터를 메모리로 불러오기 위함

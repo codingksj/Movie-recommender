@@ -2,6 +2,7 @@
 *.o
 *.a
 *.out
+*.txt
 # ── obj/ 디렉토리째무시───────
 obj/
 # ── 실행파일(Makefile target) ─

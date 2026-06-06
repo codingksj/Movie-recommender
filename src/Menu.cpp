@@ -17,7 +17,7 @@ using namespace std;
 namespace {
     void printMenu(const string& title, const vector<string>& options, const string& exitText) {
         Menu::header(title);
-        int numWidth = static_cast<int>(to_string(options.size()).length());
+        int numWidth = (int)to_string(options.size()).length();
         for (size_t i = 0; i < options.size(); ++i) {
             cout << "  [" << setw(numWidth) << right << (i + 1) << "] " << options[i] << "\n";
         }
@@ -30,7 +30,7 @@ namespace {
 // Helper to format list
 static vector<string> formatList(const vector<string>& items) {
     vector<string> lines;
-    int numWidth = static_cast<int>(to_string(items.size()).length());
+    int numWidth = (int)to_string(items.size()).length();
     for (size_t i = 0; i < items.size(); ++i) {
         stringstream ss;
         ss << "  " << setw(numWidth) << right << (i + 1) << ". " << items[i];

@@ -20,6 +20,7 @@ public:
     pair<RatingResult, double> addRating(const string& userName, const string& movieTitle, double score, MovieManager& movieManager, UserManager& userManager);
     vector<string> getRatingsByMovieFormatted(const string& movieTitle) const;
     const vector<Rating>& getRatings() const { return ratings; }
+    void mergeRatingsToMovies(MovieManager& movieManager) const;
 
     double loadFromFile() override;
     double saveToFile() override;

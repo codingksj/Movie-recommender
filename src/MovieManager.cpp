@@ -39,7 +39,8 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
     for (char &c : queryLower) { c = tolower(c); }
     
     auto searchStart = Clock::now();
-    vector<pair<Movie, string>> matches;
+    vector<pair<Movie, string>> exactMatches;
+    vector<pair<Movie, string>> partialMatches;
     size_t maxTitleLen = 0, maxGenreLen = 0;
     
     for (const auto &m : movies) {
@@ -53,7 +54,14 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
             string mid = originalTitle.substr(pos, query.length());
             string right = originalTitle.substr(pos + query.length());
             string highlightedTitle = leftPart + "[" + mid + "]" + right;
-            matches.push_back({m, highlightedTitle});
+            auto entry = make_pair(m, highlightedTitle);
+
+            if (Base::normalizeString(m.getTitle()) == Base::normalizeString(query)) {
+                exactMatches.push_back(entry);
+            } else {
+                partialMatches.push_back(entry);
+            }
+            
             if (highlightedTitle.length() > maxTitleLen) { maxTitleLen = highlightedTitle.length(); }
             if (m.getGenre().length() > maxGenreLen) { maxGenreLen = m.getGenre().length(); }
         }
@@ -61,6 +69,11 @@ pair<vector<string>, double> MovieManager::searchByTitleFormatted(const string& 
     auto searchEnd = Clock::now();
     double ms = chrono::duration_cast<Ms>(searchEnd - searchStart).count() / 1000.0;
     
+    vector<pair<Movie, string>> matches;
+    matches.reserve(exactMatches.size() + partialMatches.size());
+    matches.insert(matches.end(), exactMatches.begin(), exactMatches.end());
+    matches.insert(matches.end(), partialMatches.begin(), partialMatches.end());
+
     vector<string> lines;
     for (const auto &match : matches) {
         const Movie &m = match.first;
