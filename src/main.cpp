@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
 using std::cout;
 using namespace MC::Dataset;
@@ -46,8 +47,8 @@ static size_t readCount(const string& prompt, size_t defaultValue, size_t maxVal
         }
 
         std::stringstream ss(input);
-        int value;
-        if (ss >> value && value > 0 && value <= maxValue) {
+        long long value;
+        if (ss >> value && value > 0 && static_cast<size_t>(value) <= maxValue) {
             return static_cast<size_t>(value);
         }
 
@@ -79,17 +80,31 @@ static void createData(size_t movies, size_t users, size_t ratings) {
     cout << "[데이터 생성 완료]\n";
 }
 
+static bool fileExists(const string& path) {
+    std::ifstream f(path);
+    return f.good();
+}
+
+static bool askRegenerate() {
+    cout << "기존 데이터 파일이 있습니다. 새로 생성하시겠습니까? (y/N): ";
+    string ans = Menu::readLine();
+    return ans == "y" || ans == "Y";
+}
+
 static void initManagers(MovieManager& movieManager, UserManager& userManager, RatingManager& ratingManager) {
-    size_t movies = DEFAULT_MOVIES;
-    size_t users = DEFAULT_USERS;
-    size_t ratings = DEFAULT_RATINGS;
-    promptCounts(movies, users, ratings);
-    createData(movies, users, ratings);
-    
     movieManager.setFilePath("data/movies.csv");
     userManager.setFilePath("data/users.csv");
     ratingManager.setFilePath("data/ratings.csv");
-    
+
+    bool hasData = fileExists("data/movies.csv") && fileExists("data/users.csv") && fileExists("data/ratings.csv");
+    if (!hasData || askRegenerate()) {
+        size_t movies = DEFAULT_MOVIES;
+        size_t users = DEFAULT_USERS;
+        size_t ratings = DEFAULT_RATINGS;
+        promptCounts(movies, users, ratings);
+        createData(movies, users, ratings);
+    }
+
     movieManager.loadFromFile();
     userManager.loadFromFile();
     ratingManager.loadFromFile();

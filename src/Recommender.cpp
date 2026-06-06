@@ -65,8 +65,9 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, in
     if (base.empty()) { return {}; }
 
     vector<pair<string, double>> similarities;
+    string userKey = Base::normalizeString(user);
     for (const auto& u : um.getUsers()) {
-        if (u.getUserName() == user) { continue; }
+        if (Base::normalizeString(u.getUserName()) == userKey) { continue; }
 
         vector<Rating> other = getUserRatings(u.getUserName());
         double sim = calculateSimilarity(base, other);
@@ -91,7 +92,7 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, in
 // 타격 사용자의 미시청 영화 대한 예상 점수 도출 (코라보레이션 추천)
 // @param k 고려할 유사 사용자 수 @param watched 미샜청 영화 유무
 map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims,
-                                                    const set<string>& watched, size_t k) {
+                                                    const set<string>& watched, size_t k) const {
     map<string, double> movieScores;
     map<string, double> sumSims;
 

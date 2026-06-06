@@ -21,7 +21,8 @@ public:
     int         getReleaseYear()     const;
     double      getAverageRating()   const;
     int         getRatingCount()     const;
-    bool        addRating(double r);    void        resetRatingAggregate();
+    bool        addRating(double r);
+    void        resetRatingAggregate();
     void        mergeRating(double r);
     bool operator>(const Movie& other) const;
     bool operator==(const Movie& other) const;

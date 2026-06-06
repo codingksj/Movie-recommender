@@ -21,9 +21,9 @@ using Ms = chrono::microseconds;
 pair<MovieResult, double> MovieManager::addMovie(const string& title, int year, const string& genre) {
     auto start = Clock::now();
     try {
-        Movie target(title, year, genre);
+        string titleKey = Base::normalizeString(title);
         for (const auto& m : movies) {
-            if (m == target) {
+            if (Base::normalizeString(m.getTitle()) == titleKey) {
                 auto end = Clock::now();
                 return {MovieResult::DUPLICATE_MOVIE, chrono::duration_cast<Ms>(end - start).count() / 1000.0};
             }
@@ -207,10 +207,14 @@ double MovieManager::loadFromFile() {
             getline(ss, totalRatingStr, ',');
             getline(ss, ratingCountStr, ',');
             if (!title.empty()) {
-                int year = stoi(yearStr);
-                double totalRating = stod(totalRatingStr);
-                int ratingCount = stoi(ratingCountStr);
-                movies.push_back(Movie(title, year, genre, totalRating, ratingCount));
+                try {
+                    int year = stoi(yearStr);
+                    double totalRating = stod(totalRatingStr);
+                    int ratingCount = stoi(ratingCountStr);
+                    movies.push_back(Movie(title, year, genre, totalRating, ratingCount));
+                } catch (const exception &e) {
+                    // 형식이 잘못된 영화 데이터는 스킵 (CSV 파싱 오류 방지)
+                }
             }
         }
         file.close();

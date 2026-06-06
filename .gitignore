@@ -1,16 +1,16 @@
-# ── 컴파일산출물──────────────
+# 컴파일 산출물
 *.o
 *.a
 *.out
 *.txt
-# ── obj/ 디렉토리째무시───────
+# obj 디렉터리 전체 무시
 obj/
-# ── 실행파일(Makefile target) ─
+# 실행 파일 (Makefile target)
 main
 app
-# ── IDE/에디터설정────────────
+# IDE / 에디터 설정
 .vscode/
 .idea/
-# ── OS 파일────────────────────
+# OS 생성 파일
 .DS_Store
 Thumbs.db
