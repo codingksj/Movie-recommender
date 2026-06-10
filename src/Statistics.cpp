@@ -1,5 +1,3 @@
-// 영화·사용자·평점 통계 집계
-
 #include "Statistics.h"
 #include "MovieConstant.h"
 #include <numeric>
@@ -11,13 +9,13 @@
 using namespace std;
 using namespace MC::Ui;
 
-vector<string> Statistics::getOverallStatistics() const {
+vector<string> Statistics::overall() const {
     vector<string> result;
     
     int movieCount = mm.size();
     int userCount = um.size();
     int ratingCount = rm.size();
-    double avgRating = calculateAverageRating();
+    double avg = avgRating();
     
     stringstream ss;
     ss << "  전체 영화 수     : " << movieCount << "개";
@@ -32,15 +30,17 @@ vector<string> Statistics::getOverallStatistics() const {
     result.push_back(ss.str());
     
     ss.str(""); ss.clear();
-    ss << "  전체 평균 평점   : " << fixed << setprecision(2) << avgRating;
+    ss << "  전체 평균 평점   : " << fixed << setprecision(2) << avg;
     result.push_back(ss.str());
     
     return result;
 }
 
-vector<string> Statistics::getTopMoviesByRating(int n) const {
+vector<string> Statistics::topByRating(int n) const {
     const auto& movies = mm.getMovies();
-    if (movies.empty()) { return {"  추천할 영화 데이터가 없습니다."}; }
+    if (movies.empty()) {
+        return {"  추천할 영화 데이터가 없습니다."};
+    }
     
     auto sorted = movies;
     sort(sorted.begin(), sorted.end(), [](const Movie& a, const Movie& b) {
@@ -62,16 +62,20 @@ vector<string> Statistics::getTopMoviesByRating(int n) const {
     for (size_t i = 0; i < limit; ++i) {
         stringstream ss;
         ss << "    " << setw(FORMAT_TITLE_WIDTH) << left << sorted[i].getTitle()
-           << " | 평점: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << right << sorted[i].getAverageRating()
-           << " | 평가: " << setw(FORMAT_RATING_COUNT_WIDTH) << sorted[i].getRatingCount();
+           << " | 평점: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) 
+           << right << sorted[i].getAverageRating()
+           << " | 평가: " << setw(FORMAT_RATING_COUNT_WIDTH) 
+           << sorted[i].getRatingCount();
         result.push_back(ss.str());
     }
     return result;
 }
 
-vector<string> Statistics::getTopMoviesByRatingCount(int n) const {
+vector<string> Statistics::topByRatingCount(int n) const {
     const auto& movies = mm.getMovies();
-    if (movies.empty()) { return {"  추천할 영화 데이터가 없습니다."}; }
+    if (movies.empty()) {
+        return {"  추천할 영화 데이터가 없습니다."};
+    }
     
     auto sorted = movies;
     sort(sorted.begin(), sorted.end(), [](const Movie& a, const Movie& b) {
@@ -96,50 +100,60 @@ vector<string> Statistics::getTopMoviesByRatingCount(int n) const {
     for (size_t i = 0; i < limit; ++i) {
         stringstream ss;
         ss << "    " << setw(FORMAT_TITLE_WIDTH) << left << sorted[i].getTitle()
-           << " | 평가: " << setw(FORMAT_RATING_COUNT_WIDTH) << right << sorted[i].getRatingCount()
-           << " | 평점: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << sorted[i].getAverageRating();
+           << " | 평가: " << setw(FORMAT_RATING_COUNT_WIDTH) << right 
+           << sorted[i].getRatingCount()
+           << " | 평점: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) 
+           << sorted[i].getAverageRating();
         result.push_back(ss.str());
     }
     return result;
 }
 
-vector<string> Statistics::getStatisticsByGenre() const {
-    auto genreStats = getGenreStatistics();
-    if (genreStats.empty()) { return {"  장르 데이터가 없습니다."}; }
+vector<string> Statistics::byGenre() const {
+    auto stats = genreStats();
+    if (stats.empty()) {
+        return {"  장르 데이터가 없습니다."};
+    }
     
     vector<string> result;
-    for (const auto& [genre, statPair] : genreStats) {
+    for (const auto& [genre, statPair] : stats) {
         double avg = statPair.first;
         int count = statPair.second;
         stringstream ss;
-        ss << "  " << setw(FORMAT_GENRE_WIDTH) << left << genre << " | 평균: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << right << avg
+        ss << "  " << setw(FORMAT_GENRE_WIDTH) << left << genre << " | 평균: " 
+           << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << right << avg
            << " | 영화 수: " << setw(FORMAT_COUNT_WIDTH) << count;
         result.push_back(ss.str());
     }
     return result;
 }
 
-vector<string> Statistics::getStatisticsByYear() const {
-    auto yearStats = getYearStatistics();
-    if (yearStats.empty()) { return {"  연도 데이터가 없습니다."}; }
+vector<string> Statistics::byYear() const {
+    auto stats = yearStats();
+    if (stats.empty()) {
+        return {"  연도 데이터가 없습니다."};
+    }
     
     vector<string> result;
-    for (const auto& [year, statPair] : yearStats) {
+    for (const auto& [year, statPair] : stats) {
         double avg = statPair.first;
         int count = statPair.second;
         stringstream ss;
-        ss << "  " << setw(FORMAT_YEAR_WIDTH) << year << "년 | 평균: " << fixed << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << right << avg
+        ss << "  " << setw(FORMAT_YEAR_WIDTH) << year << "년 | 평균: " << fixed 
+           << setprecision(1) << setw(FORMAT_SCORE_WIDTH) << right << avg
            << " | 영화 수: " << setw(FORMAT_COUNT_WIDTH) << count;
         result.push_back(ss.str());
     }
     return result;
 }
 
-vector<string> Statistics::getTopUsersByRatingCount(int n) const {
-    auto userStats = getUserRatingStatistics();
-    if (userStats.empty()) { return {"  사용자 평점 데이터가 없습니다."}; }
+vector<string> Statistics::topUsers(int n) const {
+    auto stats = userRatingStats();
+    if (stats.empty()) {
+        return {"  사용자 평점 데이터가 없습니다."};
+    }
     
-    vector<pair<string, pair<int, double>>> sorted(userStats.begin(), userStats.end());
+    vector<pair<string, RatingCountPair>> sorted(stats.begin(), stats.end());
     sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
         if (a.second.first != b.second.first) {
             return a.second.first > b.second.first;
@@ -172,7 +186,7 @@ vector<string> Statistics::getTopUsersByRatingCount(int n) const {
     return result;
 }
 
-vector<string> Statistics::getUserStatistics(const string& user) const {
+vector<string> Statistics::userStats(const string& user) const {
     vector<string> result;
 
     const User* found = um.findUserByName(user);
@@ -181,16 +195,15 @@ vector<string> Statistics::getUserStatistics(const string& user) const {
         return result;
     }
 
-    // 사용자의 평점 벡터 수집 - 모든 평점에서 해당 사용자 평점만 추출 (분해된 함수 호출)
-    vector<Rating> userRatings = getUserRatingsVector(user);
-    
-    // 수집된 평점을 기반으로 통계 포맷팅 (분해된 함수 호출)
-    return formatUserStatisticsLines(user, userRatings);
+    vector<Rating> ratings = userRatings(user);
+    return formatUserLines(user, ratings);
 }
 
-double Statistics::calculateAverageRating() const {
+double Statistics::avgRating() const {
     const auto& ratings = rm.getRatings();
-    if (ratings.empty()) { return 0.0; }
+    if (ratings.empty()) {
+        return 0.0;
+    }
     
     double sum = accumulate(ratings.begin(), ratings.end(), 0.0,
         [](double acc, const Rating& r) {
@@ -199,45 +212,45 @@ double Statistics::calculateAverageRating() const {
     return sum / ratings.size();
 }
 
-map<string, pair<double, int>> Statistics::getGenreStatistics() const {
-    map<string, pair<double, int>> genreStats; 
+Statistics::GenreMap Statistics::genreStats() const {
+    map<string, StatPair> stats; 
     
     const auto& movies = mm.getMovies();
     for (const auto& movie : movies) {
-        string genre = movie.getGenre();
-        if (genreStats.find(genre) == genreStats.end()) {
-            genreStats[genre] = {0.0, 0};
+        string g = movie.getGenre();
+        if (stats.find(g) == stats.end()) {
+            stats[g] = {0.0, 0};
         }
-        genreStats[genre].first += movie.getAverageRating() * movie.getRatingCount();
-        genreStats[genre].second += movie.getRatingCount();
+        stats[g].first += movie.getAverageRating() * movie.getRatingCount();
+        stats[g].second += movie.getRatingCount();
     }
     
-    map<string, pair<double, int>> result;
-    for (const auto& [genre, statPair] : genreStats) {
+    GenreMap result;
+    for (const auto& [g, statPair] : stats) {
         double totalRating = statPair.first;
         int count = statPair.second;
         if (count > 0) {
-            result[genre] = {totalRating / count, count};
+            result[g] = {totalRating / count, count};
         }
     }
     return result;
 }
 
-map<int, pair<double, int>> Statistics::getYearStatistics() const {
-    map<int, pair<double, int>> yearStats; 
+Statistics::YearMap Statistics::yearStats() const {
+    map<int, StatPair> stats; 
     
     const auto& movies = mm.getMovies();
     for (const auto& movie : movies) {
         int year = movie.getReleaseYear();
-        if (yearStats.find(year) == yearStats.end()) {
-            yearStats[year] = {0.0, 0};
+        if (stats.find(year) == stats.end()) {
+            stats[year] = {0.0, 0};
         }
-        yearStats[year].first += movie.getAverageRating() * movie.getRatingCount();
-        yearStats[year].second += movie.getRatingCount();
+        stats[year].first += movie.getAverageRating() * movie.getRatingCount();
+        stats[year].second += movie.getRatingCount();
     }
     
-    map<int, pair<double, int>> result;
-    for (const auto& [year, statPair] : yearStats) {
+    YearMap result;
+    for (const auto& [year, statPair] : stats) {
         double totalRating = statPair.first;
         int count = statPair.second;
         if (count > 0) {
@@ -247,22 +260,21 @@ map<int, pair<double, int>> Statistics::getYearStatistics() const {
     return result;
 }
 
-map<string, pair<int, double>> Statistics::getUserRatingStatistics() const {
-    map<string, pair<int, double>> userStats; 
+Statistics::UserMap Statistics::userRatingStats() const {
+    map<string, RatingCountPair> stats; 
     
     const auto& ratings = rm.getRatings();
     for (const auto& rating : ratings) {
         string userName = rating.getUserName();
-        if (userStats.find(userName) == userStats.end()) {
-            userStats[userName] = {0, 0.0};
+        if (stats.find(userName) == stats.end()) {
+            stats[userName] = {0, 0.0};
         }
-        userStats[userName].first++;
-        userStats[userName].second += rating.getUserRating();
+        stats[userName].first++;
+        stats[userName].second += rating.getUserRating();
     }
     
-    // 사용자별 평균 평점을 계산하여 통계 맵에 저장
-    map<string, pair<int, double>> result;
-    for (const auto& [userName, statPair] : userStats) {
+    UserMap result;
+    for (const auto& [userName, statPair] : stats) {
         int count = statPair.first;
         double totalRating = statPair.second;
         result[userName] = {count, count > 0 ? totalRating / count : 0.0};
@@ -270,38 +282,37 @@ map<string, pair<int, double>> Statistics::getUserRatingStatistics() const {
     return result;
 }
 
-// 사용자 평점 벡터 수집 - 모든 평점 데이터에서 특정 사용자의 평점만 추출
-vector<Rating> Statistics::getUserRatingsVector(const string& user) const {
-    vector<Rating> userRatings;
+vector<Rating> Statistics::userRatings(const string& user) const {
+    vector<Rating> ratings;
     const User* found = um.findUserByName(user);
     if (!found) {
-        return userRatings;
+        return ratings;
     }
     
     const auto& allRatings = rm.getRatings();
     for (const auto& r : allRatings) {
         if (r.getUserName() == found->getUserName()) {
-            userRatings.push_back(r);
+            ratings.push_back(r);
         }
     }
-    return userRatings;
+    return ratings;
 }
 
-// 사용자 통계 포맷팅 - 수집된 평점들을 기반으로 통계 정보를 텍스트 형식으로 변환
-vector<string> Statistics::formatUserStatisticsLines(const string& user, const vector<Rating>& userRatings) const {
+vector<string> Statistics::formatUserLines(const string& user, 
+                                           const vector<Rating>& ratings) const {
     vector<string> result;
     
-    if (userRatings.empty()) {
+    if (ratings.empty()) {
         result.push_back("  해당 사용자의 평점 이력이 없습니다.");
         return result;
     }
     
-    int ratingCount = userRatings.size();
-    double sumRating = accumulate(userRatings.begin(), userRatings.end(), 0.0,
+    int ratingCount = ratings.size();
+    double sumRating = accumulate(ratings.begin(), ratings.end(), 0.0,
         [](double acc, const Rating& r) {
             return acc + r.getUserRating();
         });
-    double avgRating = sumRating / ratingCount;
+    double avg = sumRating / ratingCount;
     
     stringstream ss;
     ss << "  사용자명       : " << user;
@@ -312,12 +323,12 @@ vector<string> Statistics::formatUserStatisticsLines(const string& user, const v
     result.push_back(ss.str());
     
     ss.str(""); ss.clear();
-    ss << "  평균 평점     : " << fixed << setprecision(2) << avgRating;
+    ss << "  평균 평점     : " << fixed << setprecision(2) << avg;
     result.push_back(ss.str());
     
     ss.str(""); ss.clear();
     ss << "  최고 평점     : " << fixed << setprecision(1) 
-       << (*max_element(userRatings.begin(), userRatings.end(),
+       << (*max_element(ratings.begin(), ratings.end(),
            [](const Rating& a, const Rating& b) {
                return a.getUserRating() < b.getUserRating();
            })).getUserRating();
@@ -325,7 +336,7 @@ vector<string> Statistics::formatUserStatisticsLines(const string& user, const v
     
     ss.str(""); ss.clear();
     ss << "  최저 평점     : " << fixed << setprecision(1)
-       << (*min_element(userRatings.begin(), userRatings.end(),
+       << (*min_element(ratings.begin(), ratings.end(),
            [](const Rating& a, const Rating& b) {
                return a.getUserRating() < b.getUserRating();
            })).getUserRating();

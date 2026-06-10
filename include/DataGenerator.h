@@ -9,53 +9,74 @@ using std::vector;
 
 class DataGenerator {
 public:
-    static bool generateSyntheticDataset(const string& moviePath,
-                                         const string& userPath,
-                                         const string& ratingPath,
-                                         size_t movieCnt,
-                                         size_t userCnt,
-                                         size_t ratingCnt,
-                                         int okPercent = 0);
+    struct GenConfig {
+        string moviePath;
+        string userPath;
+        string ratingPath;
+        size_t movieCnt = 0;
+        size_t userCnt = 0;
+        size_t ratingCnt = 0;
+        int okPercent = 0;
+    };
+
+    struct RatingConfig {
+        const vector<string>& movies;
+        const vector<string>& users;
+        const vector<size_t>& perMovieCnt;
+        size_t movieCnt = 0;
+        size_t userCnt = 0;
+        string ratingPath;
+    };
+
+    struct RatingOutputs {
+        vector<double>& movieTotalRatings;
+        vector<int>& movieRatingCounts;
+    };
+
+    struct MovieSaveParams {
+        const vector<string>& movies;
+        const vector<string>& genres;
+        const vector<int>& years;
+        const vector<double>& totalRatings;
+        const vector<int>& ratingCounts;
+        string moviePath;
+    };
+
+    struct GenResult {
+        bool ok = false;
+        double ms = 0.0;
+    };
+
+    static GenResult generate(const GenConfig& config);
 
 private:
-    // 헬퍼 함수들 - 거대 함수 분해
-    static bool validateGenerationParams(size_t movieCnt, size_t userCnt, 
-                                        size_t ratingCnt, int okPercent);
+    static vector<string> titleAdj;
+    static vector<string> titleNoun;
+    static vector<string> genre;
+    static vector<string> userBase;
+    static vector<string> userSuffix;
     
-    static void generateMovieData(std::mt19937_64& engine,
-                                 const vector<string>& titleAdjectives,
-                                 const vector<string>& titleNouns,
-                                 const vector<string>& genres,
-                                 size_t movieCnt,
-                                 vector<string>& outMovies,
-                                 vector<string>& outGenres,
-                                 vector<int>& outYears);
+    static bool loadSeeds(const string& filePath);
+    static bool validate(size_t movieCnt, size_t userCnt, 
+                         size_t ratingCnt, int okPercent);
     
-    static bool generateUserData(std::mt19937_64& engine,
-                                const vector<string>& userBases,
-                                const vector<string>& userSuffixes,
-                                size_t userCnt,
-                                const string& userPath,
-                                vector<string>& outUsers);
+    static void genMovies(std::mt19937_64& engine,
+                          size_t movieCnt,
+                          vector<string>& outMovies,
+                          vector<string>& outGenres,
+                          vector<int>& outYears);
     
-    static void calculateRatingDistribution(size_t movieCnt, size_t userCnt,
-                                           size_t ratingCnt,
-                                           vector<int>& outFlatDist);
+    static bool genUsers(std::mt19937_64& engine,
+                         size_t userCnt,
+                         const string& userPath,
+                         vector<string>& outUsers);
     
-    static bool generateAndSaveRatings(std::mt19937_64& engine,
-                                      const vector<string>& movies,
-                                      const vector<string>& users,
-                                      const vector<int>& ratingDist,
-                                      size_t movieCnt,
-                                      size_t userCnt,
-                                      const string& ratingPath,
-                                      vector<double>& outMovieTotalRatings,
-                                      vector<int>& outMovieRatingCounts);
+    static void buildPerMovieCnt(size_t movieCnt, size_t ratingCnt,
+                                 vector<size_t>& outPerMovieCnt);
+
+    static bool genRatings(std::mt19937_64& engine,
+                           const RatingConfig& config,
+                           RatingOutputs& outputs);
     
-    static bool saveMoviesToFile(const vector<string>& movies,
-                                const vector<string>& genres,
-                                const vector<int>& years,
-                                const vector<double>& totalRatings,
-                                const vector<int>& ratingCounts,
-                                const string& moviePath);
+    static bool saveMovies(const MovieSaveParams& params);
 };

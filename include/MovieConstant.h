@@ -39,15 +39,21 @@ namespace Dataset {
     constexpr int DEFAULT_MOVIES = 100;
     constexpr int DEFAULT_USERS = 50;
     constexpr int DEFAULT_RATINGS = 200;
+
+    inline const string MOVIE_CSV_PATH = "data/movies.csv";
+    inline const string USER_CSV_PATH = "data/users.csv";
+    inline const string RATING_CSV_PATH = "data/ratings.csv";
 }
 
 namespace Ui {
     constexpr size_t MIN_WIDTH = 40;
     constexpr size_t TITLE_PAD = 6;
     constexpr int TOP_N = 10;
-    
-    // 포맷팅 너비 — 데이터 출력 정렬을 위해 명시적으로 선언
-    // 영화/사용자/평점 통계 출력 시 칼럼 정렬 유지 필요
+    constexpr size_t PAGE_SIZE = 50;
+
+    inline const string PAGE_NEXT = "enter";
+    inline const string PAGE_QUIT = "q";
+    inline const string PAGE_CONTINUE = "enter";
     constexpr int FORMAT_TITLE_WIDTH = 30;           // 영화 제목 너비
     constexpr int FORMAT_USER_WIDTH = 20;            // 사용자명 너비
     constexpr int FORMAT_GENRE_WIDTH = 10;           // 장르 너비
@@ -74,6 +80,39 @@ namespace Sort {
 
 namespace Menu {
     constexpr int BACK = 0;
+
+    namespace Init {
+        constexpr int EXIT = 0;
+        constexpr int LOAD = 1;
+        constexpr int REGEN = 2;
+
+        inline const string TITLE = "데이터 초기화";
+        inline const vector<string> OPTIONS = {
+            "기존 데이터 불러오기", "새 데이터 생성 (덮어쓰기)"
+        };
+
+        namespace Overwrite {
+            constexpr int BACK = 0;
+            constexpr int GO = 1;
+
+            inline const string TITLE = "덮어쓰기 확인";
+            inline const vector<string> OPTIONS = {"생성 계속"};
+        }
+
+        namespace GenReview {
+            constexpr int BACK = 0;
+            constexpr int GO = 1;
+
+            inline const string TITLE = "생성 확인";
+            inline const vector<string> OPTIONS = {"생성 시작"};
+        }
+
+        inline const string MOVIE_CNT_TITLE = "영화 개수 설정";
+        inline const string USER_CNT_TITLE = "사용자 개수 설정";
+        inline const string RATING_CNT_TITLE = "평점 개수 설정";
+        inline const string LOAD_TITLE = "데이터 로드";
+        inline const string GEN_DONE_TITLE = "데이터 생성 완료";
+    }
 
     namespace Main {
         constexpr int EXIT = 0;
@@ -151,12 +190,7 @@ namespace Menu {
 namespace Generator {
     constexpr int SCORE_TENTHS_MIN = 0;
     constexpr int SCORE_TENTHS_MAX = 100;
-    constexpr double Z_MEAN = 0.0;
-    constexpr double Z_STDDEV = 1.0;
-    constexpr double SCORE_MAX = 10.0;
     constexpr double SCORE_SCALE = 10.0;
-    constexpr double CDF_HALF = 0.5;
-    constexpr double SQRT2 = 1.4142135623730951;
     constexpr int MIN_RATING = 1;
     constexpr int DIGIT_MIN = 10;
     constexpr int DIGIT_MAX = 99;
@@ -179,8 +213,7 @@ namespace Generator {
 
     inline const vector<string> ROMANS = {"I", "II", "III", "IV", "V", "VI", "VII"};
 }
-
-} // namespace MovieConstants
+}
 
 namespace MC = MovieConstants;
 

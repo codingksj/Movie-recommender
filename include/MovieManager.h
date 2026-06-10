@@ -5,6 +5,7 @@
 #include <functional>
 #include <utility>
 #include "Movie.h"
+#include "Rating.h"
 #include "BaseManager.h"
 #include "MovieConstant.h"
 
@@ -24,6 +25,7 @@ public:
     Movie* findMovieByTitle(const string& title);
     const Movie* findMovieByTitle(const string& title) const;
     const vector<Movie>& getMovies() const { return movies; }
+    void applyRatings(const vector<Rating>& ratings);
 
     double loadFromFile() override;
     double saveToFile() override;

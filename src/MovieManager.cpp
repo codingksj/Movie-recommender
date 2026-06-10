@@ -12,6 +12,7 @@ using namespace MC::Sort;
 #include <iomanip>
 #include <algorithm>
 #include <iterator>
+#include <unordered_map>
 
 using namespace std;
 using namespace MC::Ui;
@@ -183,6 +184,22 @@ const Movie* MovieManager::findMovieByTitle(const string &title) const {
     return nullptr;
 }
 
+void MovieManager::applyRatings(const vector<Rating>& ratings) {
+    for (auto& m : movies) {
+        m.resetRatingAggregate();
+    }
+    std::unordered_map<string, size_t> idx;
+    idx.reserve(movies.size() * 2);
+    for (size_t i = 0; i < movies.size(); ++i) {
+        idx[Base::normalizeString(movies[i].getTitle())] = i;
+    }
+    for (const auto& r : ratings) {
+        auto it = idx.find(Base::normalizeString(r.getMovieTitle()));
+        if (it != idx.end()) {
+            movies[it->second].mergeRating(r.getUserRating());
+        }
+    }
+}
 
 double MovieManager::loadFromFile() {
     movies.clear();

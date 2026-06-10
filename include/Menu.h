@@ -19,6 +19,10 @@ public:
     static void mainMenu();
     static void subMenu(const string& title, const vector<string>& options);
     static void resultBox(const string& title, const vector<string>& lines);
+    static void resultBoxPaged(const string& title,
+                               const vector<string>& lines,
+                               double elapsedMs,
+                               const string& elapsedLabel);
     static string readLine();
     static int readChoice();
     static double readDouble();
@@ -29,6 +33,7 @@ public:
     static void runRec(Recommender& rec);
     static void runStat(Statistics& stats);
 
+    static bool runStartup(MovieManager& mm, UserManager& um, RatingManager& rm);
     static void showLoadSummary(int movies, int users, int ratings);
     static void showSaveSummary(int movies, int users, int ratings);
 

@@ -69,17 +69,7 @@ vector<string> RatingManager::getRatingsByMovieFormatted(const string& title) co
 }
 
 void RatingManager::mergeRatingsToMovies(MovieManager& mm) const {
-    std::set<string> resetTitles;
-    for (const auto& r : ratings) {
-        Movie* movie = mm.findMovieByTitle(r.getMovieTitle());
-        if (!movie) {
-            continue;
-        }
-        if (resetTitles.insert(movie->getTitle()).second) {
-            movie->resetRatingAggregate();
-        }
-        movie->mergeRating(r.getUserRating());
-    }
+    mm.applyRatings(ratings);
 }
 
 double RatingManager::loadFromFile() {
