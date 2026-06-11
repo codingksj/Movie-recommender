@@ -1,13 +1,10 @@
 // 영화 도메인 모델 — 메타데이터 및 평점 집계
-
 #include "Movie.h"
 #include <iostream>
+#include "MovieConstant.h"
 
 using std::string;
 using std::cout;
-
-#include "MovieConstant.h"
-
 using namespace MC::Dataset;
 using namespace MC::Score;
 

@@ -1,9 +1,6 @@
 // 영화 CRUD, 검색·정렬 및 CSV 영속화
-
 #include "MovieManager.h"
 #include "MovieConstant.h"
-
-using namespace MC::Sort;
 #include <iostream>
 #include <exception>
 #include <chrono>
@@ -14,6 +11,7 @@ using namespace MC::Sort;
 #include <iterator>
 #include <unordered_map>
 
+using namespace MC::Sort;
 using namespace std;
 using namespace MC::Ui;
 using Clock = chrono::high_resolution_clock;

@@ -1,5 +1,5 @@
 CXX      = g++
-CXXFLAGS = -std=c++17 -Wall -g -Iinclude
+CXXFLAGS = -std=c++17 -O2 -Wall -g -Iinclude
 TARGET   = main
 SRC_DIR  = src
 INC_DIR  = include

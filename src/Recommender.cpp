@@ -89,7 +89,6 @@ vector<pair<string, double>> Recommender::getSimilarUsers(const string& user, in
 
 // 유사 사용자들의 평점을 가중 평균으로 계산하여
 // 타겟 사용자의 미시청 영화에 대한 예상 점수 도출 (협업 필터링 추천)
-// @param k 고려할 유사 사용자 수 @param watched 미시청 영화 유무
 map<string, double> Recommender::predictMovieScores(const vector<pair<string, double>>& userSims,
                                                     const set<string>& watched, size_t k) const {
     map<string, double> movieScores;

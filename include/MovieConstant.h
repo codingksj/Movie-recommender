@@ -54,7 +54,7 @@ namespace Ui {
     inline const string PAGE_NEXT = "enter";
     inline const string PAGE_QUIT = "q";
     inline const string PAGE_CONTINUE = "enter";
-    constexpr int FORMAT_TITLE_WIDTH = 30;           // 영화 제목 너비
+    constexpr int FORMAT_TITLE_WIDTH = 40;           // 영화 제목 너비
     constexpr int FORMAT_USER_WIDTH = 20;            // 사용자명 너비
     constexpr int FORMAT_GENRE_WIDTH = 10;           // 장르 너비
     constexpr int FORMAT_RATING_COUNT_WIDTH = 7;     // 평가 수 너비

@@ -1,5 +1,4 @@
 // 평점 도메인 모델 — 사용자·영화·점수 보관
-
 #include "Rating.h"
 #include "MovieConstant.h"
 

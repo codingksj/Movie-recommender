@@ -2,8 +2,6 @@
 
 #include "RatingManager.h"
 #include "MovieConstant.h"
-
-using namespace MC::Score;
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -12,6 +10,7 @@ using namespace MC::Score;
 #include <set>
 
 using namespace std;
+using namespace MC::Score;
 using Clock = chrono::high_resolution_clock;
 using Ms = chrono::microseconds;
 
